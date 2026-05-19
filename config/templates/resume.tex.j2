@@ -11,12 +11,8 @@
 
 \begin{center}
   {\LARGE \textbf{<< resume.contact.name | tex_escape >>}}\\[2pt]
-  << resume.contact.email | tex_escape >>%
-  << " $\\cdot$ " + resume.contact.phone | tex_escape if resume.contact.phone else "" >>%
-  << " $\\cdot$ " + resume.contact.location | tex_escape if resume.contact.location else "" >>\\
-  << resume.contact.github | tex_escape if resume.contact.github else "" >>%
-  << " $\\cdot$ " + resume.contact.linkedin | tex_escape if resume.contact.linkedin else "" >>%
-  << " $\\cdot$ " + resume.contact.website | tex_escape if resume.contact.website else "" >>
+  << resume.contact.email | tex_escape >>(* if resume.contact.phone *) $\cdot$ << resume.contact.phone | tex_escape >>(* endif *)(* if resume.contact.location *) $\cdot$ << resume.contact.location | tex_escape >>(* endif *)\\
+  (* if resume.contact.github *)<< resume.contact.github | tex_escape >>(* endif *)(* if resume.contact.linkedin *) $\cdot$ << resume.contact.linkedin | tex_escape >>(* endif *)(* if resume.contact.website *) $\cdot$ << resume.contact.website | tex_escape >>(* endif *)
 \end{center}
 
 \noindent\textit{Target role:} \textbf{<< resume.role.label | tex_escape >>}
@@ -24,75 +20,65 @@
 \section*{Summary}
 << resume.summary | tex_escape >>
 
-%- if resume.skills
+(* if resume.skills *)
 \section*{Skills}
 << resume.skills | join(" $\\cdot$ ") | tex_escape >>
-%- endif
+(* endif *)
 
-%- if resume.experience
+(* if resume.experience *)
 \section*{Experience}
-%- for x in resume.experience
-\textbf{<< x.role | tex_escape >>} --- << x.company | tex_escape >>%
-<< ", " + x.location | tex_escape if x.location else "" >>%
-%- if x.start or x.end
- \hfill \textit{<< x.start | tex_escape >> -- << (x.end or "Present") | tex_escape >>}
-%- endif
-%- if x.bullets
+(* for x in resume.experience *)
+\textbf{<< x.role | tex_escape >>} --- << x.company | tex_escape >>(* if x.location *), << x.location | tex_escape >>(* endif *)(* if x.start or x.end *) \hfill \textit{<< (x.start or "") | tex_escape >> -- << (x.end or "Present") | tex_escape >>}(* endif *)
+(* if x.bullets *)
 \begin{itemize}
-%- for b in x.bullets
+(* for b in x.bullets *)
   \item << b | tex_escape >>
-%- endfor
+(* endfor *)
 \end{itemize}
-%- endif
-%- endfor
-%- endif
+(* endif *)
+(* endfor *)
+(* endif *)
 
-%- if resume.projects
+(* if resume.projects *)
 \section*{Projects}
-%- for p in resume.projects
-\textbf{<< p.name | tex_escape >>}%
-<< " --- \\href{" + p.url + "}{" + p.url + "}" if p.url else "" >>\\
+(* for p in resume.projects *)
+\textbf{<< p.name | tex_escape >>}(* if p.url *) --- \href{<< p.url >>}{<< p.url | tex_escape >>}(* endif *)\\
 << p.description | tex_escape >>
-%- if p.bullets
+(* if p.bullets *)
 \begin{itemize}
-%- for b in p.bullets
+(* for b in p.bullets *)
   \item << b | tex_escape >>
-%- endfor
+(* endfor *)
 \end{itemize}
-%- endif
-%- if p.tech
+(* endif *)
+(* if p.tech *)
 \textit{Tech: << p.tech | join(", ") | tex_escape >>}
-%- endif
+(* endif *)
 \\[4pt]
-%- endfor
-%- endif
+(* endfor *)
+(* endif *)
 
-%- if resume.education
+(* if resume.education *)
 \section*{Education}
-%- for e in resume.education
-\textbf{<< e.school | tex_escape >>}%
-<< " --- " + e.degree | tex_escape if e.degree else "" >>%
-<< " in " + e.field | tex_escape if e.field else "" >>%
-<< " \\hfill \\textit{" + (e.start or "") + " -- " + (e.end or "") + "}" if (e.start or e.end) else "" >>
-%- if e.notes
+(* for e in resume.education *)
+\textbf{<< e.school | tex_escape >>}(* if e.degree *) --- << e.degree | tex_escape >>(* endif *)(* if e.field *) in << e.field | tex_escape >>(* endif *)(* if e.start or e.end *) \hfill \textit{<< (e.start or "") | tex_escape >> -- << (e.end or "") | tex_escape >>}(* endif *)
+(* if e.notes *)
 \begin{itemize}
-%- for n in e.notes
+(* for n in e.notes *)
   \item << n | tex_escape >>
-%- endfor
+(* endfor *)
 \end{itemize}
-%- endif
-%- endfor
-%- endif
+(* endif *)
+(* endfor *)
+(* endif *)
 
-%- if resume.certifications
+(* if resume.certifications *)
 \section*{Certifications}
 \begin{itemize}
-%- for c in resume.certifications
-  \item \textbf{<< c.name | tex_escape >>}%
-<< " --- " + c.issuer | tex_escape if c.issuer else "" >>%
-<< " (" + c.date + ")" if c.date else "" >>
-%- endfor
+(* for c in resume.certifications *)
+  \item \textbf{<< c.name | tex_escape >>}(* if c.issuer *) --- << c.issuer | tex_escape >>(* endif *)(* if c.date *) (<< c.date | tex_escape >>)(* endif *)
+(* endfor *)
 \end{itemize}
-%- endif
+(* endif *)
 
 \end{document}

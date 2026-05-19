@@ -1,0 +1,96 @@
+"""LLM synthesizer.
+
+Cross-references:
+- The RoleSpec (target).
+- AI-extracted Evidence (relevant repos + rationale).
+- Raw documents (PDF/DOCX/etc. — the candidate's existing resume / bio / notes).
+
+Produces a full `Resume` model with a tailored summary, polished bullets, and
+prioritized skill ordering. The static synth's fields are filled deterministically
+when AI omits them, so the renderers always get a complete model.
+"""
+
+from __future__ import annotations
+
+from ..llm import LLMProvider
+from ..models import (
+    ContactInfo,
+    Evidence,
+    RawDocument,
+    Repo,
+    Resume,
+    RoleSpec,
+)
+from .base import Synthesizer
+from .static_synth import StaticSynthesizer
+
+_MAX_DOC_CHARS = 6000
+_SYSTEM = (
+    "You are a top-tier resume writer. Produce a complete, ATS-friendly resume tailored to the "
+    "target role. Use impact-focused, metric-bearing bullets where possible. Include only "
+    "experience/projects that are real (present in the provided materials). Skills list should "
+    "be ordered by role-relevance. Be concise — no fluff."
+)
+
+
+class AISynthesizer(Synthesizer):
+    def __init__(self, llm: LLMProvider) -> None:
+        self._llm = llm
+        self._fallback = StaticSynthesizer()
+
+    def build(
+        self,
+        role: RoleSpec,
+        repos: list[Repo],
+        evidence: list[Evidence],
+        documents: list[RawDocument],
+    ) -> Resume:
+        # Pre-extract contact via static path for reliability; LLM can overwrite.
+        baseline = self._fallback.build(role, repos, evidence, documents)
+
+        prompt = self._build_prompt(role, evidence, documents, baseline.contact)
+        try:
+            resume = self._llm.structured(prompt, schema=Resume, system=_SYSTEM, max_tokens=4096)
+        except Exception:
+            return baseline
+
+        # Force-correct: role spec must match the requested role.
+        resume.role = role
+        # Carry over any contact fields LLM left blank.
+        resume.contact = _merge_contact(resume.contact, baseline.contact)
+        return resume
+
+    def _build_prompt(
+        self,
+        role: RoleSpec,
+        evidence: list[Evidence],
+        documents: list[RawDocument],
+        contact: ContactInfo,
+    ) -> str:
+        ev_blob = "\n".join(
+            f"- {e.source_id} (score={e.score:.1f}): {e.rationale or e.snippet}\n  bullets: {e.bullets}"
+            for e in evidence
+        ) or "(none)"
+        docs_blob = "\n\n---\n\n".join(
+            f"file: {d.filename}\n{d.text[:_MAX_DOC_CHARS]}" for d in documents
+        ) or "(no documents provided)"
+        return (
+            f"Target role: {role.label}\n"
+            f"Keywords: {', '.join(role.keywords)}\n"
+            f"Must-have skills: {', '.join(role.must_have_skills)}\n"
+            f"Summary hint: {role.summary_hint or ''}\n\n"
+            f"Known contact info: {contact.model_dump_json()}\n\n"
+            f"Role-relevant GitHub projects:\n{ev_blob}\n\n"
+            f"Candidate documents (resume, bio, notes):\n{docs_blob}\n\n"
+            "Compose the final Resume. Include `role`, `contact`, `summary`, `skills`, "
+            "`experience`, `projects` (use the GitHub evidence), `education`, `certifications`. "
+            "Use generated_on = today."
+        )
+
+
+def _merge_contact(primary: ContactInfo, fallback: ContactInfo) -> ContactInfo:
+    out = primary.model_copy()
+    for field in ("name", "email", "phone", "location", "website", "github", "linkedin"):
+        if not getattr(out, field):
+            setattr(out, field, getattr(fallback, field))
+    return out
