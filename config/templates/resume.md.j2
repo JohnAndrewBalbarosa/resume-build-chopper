@@ -1,0 +1,64 @@
+# {{ resume.contact.name or "Your Name" }}
+
+{% if resume.contact.email %}{{ resume.contact.email }}{% endif %}{% if resume.contact.phone %} · {{ resume.contact.phone }}{% endif %}{% if resume.contact.location %} · {{ resume.contact.location }}{% endif %}
+{% if resume.contact.github %}[GitHub]({{ resume.contact.github }}){% endif %}{% if resume.contact.linkedin %} · [LinkedIn]({{ resume.contact.linkedin }}){% endif %}{% if resume.contact.website %} · [Website]({{ resume.contact.website }}){% endif %}
+
+> Target role: **{{ resume.role.label }}**
+
+## Summary
+
+{{ resume.summary }}
+
+{% if resume.skills %}
+## Skills
+
+{{ resume.skills | join(" · ") }}
+{% endif %}
+
+{% if resume.experience %}
+## Experience
+
+{% for x in resume.experience %}
+**{{ x.role }}** — {{ x.company }}{% if x.location %}, {{ x.location }}{% endif %}
+{% if x.start or x.end %}*{{ x.start or "" }} – {{ x.end or "Present" }}*{% endif %}
+{% for b in x.bullets %}
+- {{ b }}
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+
+{% if resume.projects %}
+## Projects
+
+{% for p in resume.projects %}
+**{{ p.name }}**{% if p.url %} — [{{ p.url }}]({{ p.url }}){% endif %}
+{% if p.description %}{{ p.description }}{% endif %}
+{% for b in p.bullets %}
+- {{ b }}
+{% endfor %}
+{% if p.tech %}*Tech: {{ p.tech | join(", ") }}*{% endif %}
+
+{% endfor %}
+{% endif %}
+
+{% if resume.education %}
+## Education
+
+{% for e in resume.education %}
+**{{ e.school }}**{% if e.degree %} — {{ e.degree }}{% endif %}{% if e.field %} in {{ e.field }}{% endif %}
+{% if e.start or e.end %}*{{ e.start or "" }} – {{ e.end or "" }}*{% endif %}
+{% for n in e.notes %}
+- {{ n }}
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+
+{% if resume.certifications %}
+## Certifications
+
+{% for c in resume.certifications %}
+- **{{ c.name }}**{% if c.issuer %} — {{ c.issuer }}{% endif %}{% if c.date %} ({{ c.date }}){% endif %}
+{% endfor %}
+{% endif %}
