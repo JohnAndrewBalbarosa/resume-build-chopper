@@ -24,7 +24,7 @@ from .pipeline import BuildInputs, Pipeline
 from .role import StaticRolePicker
 from .sources.social import build_default_aggregator, load_scrape_config
 from .sources.social.auth import ConsolePrompt, Credentials, LoginError, SessionStore
-from .sources.social.browser_cookies import import_cookies as import_browser_cookies
+from .sources.social.browser_cookies import import_cookies_report
 
 app = typer.Typer(help="GitHub-aware role-targeted resume builder.", no_args_is_help=True)
 
@@ -201,17 +201,21 @@ def login(
     prompt = ConsolePrompt()
 
     if use_browser_cookies:
-        cookies = import_browser_cookies(vendor, browser=browser)
-        if not cookies:
+        report = import_cookies_report(vendor, browser=browser)
+        typer.echo("Browser cookie probe:")
+        for name, status in report.attempts:
+            typer.echo(f"  {name:<10} {status}")
+        if not report.ok:
             typer.secho(
-                f"Could not load {vendor} cookies from browser. Install browser_cookie3 "
-                "and make sure you are signed in.",
+                f"\nNo {vendor} cookies recovered. On Windows, Chrome requires admin "
+                "to decrypt cookies — try Edge or run this terminal as admin. "
+                "Make sure you are signed in on that browser first.",
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
-        store.save(vendor, cookies)
+        store.save(vendor, report.cookies)
         typer.secho(
-            f"Saved {len(cookies)} cookies for {vendor} from browser to {store.path(vendor)}",
+            f"\nSaved {len(report.cookies)} cookies for {vendor} -> {store.path(vendor)}",
             fg=typer.colors.GREEN,
         )
         return
