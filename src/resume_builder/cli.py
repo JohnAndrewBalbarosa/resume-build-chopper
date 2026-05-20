@@ -28,6 +28,7 @@ from .sources.social.auth import (
     Credentials,
     LoginError,
     SessionStore,
+    masked_input,
 )
 from .sources.social.browser_cookies import import_cookies_report
 
@@ -215,8 +216,6 @@ def login() -> None:
     You'll be asked: which vendor, browser-cookie path or username+password,
     then any 2FA codes if they come up.
     """
-    import getpass
-
     store = SessionStore()
     vendor = _pick_vendor_interactive()
 
@@ -257,7 +256,7 @@ def login() -> None:
 
     # Username/password path
     username = typer.prompt(f"{vendor} username or email")
-    password = getpass.getpass(f"{vendor} password (hidden): ")
+    password = masked_input(f"{vendor} password (shown as *): ")
     if not password:
         typer.secho("Empty password — aborting.", fg=typer.colors.RED)
         raise typer.Exit(code=1)

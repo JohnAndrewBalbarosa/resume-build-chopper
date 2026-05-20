@@ -21,6 +21,7 @@ import getpass
 import json
 import logging
 import os
+import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -38,12 +39,101 @@ class LoginPrompt(Protocol):
         ...
 
 
+def masked_input(prompt: str, *, mask: str = "*") -> str:
+    """Read a line from the controlling terminal, echoing ``mask`` per keystroke.
+
+    Falls back to ``getpass`` (no visible echo) when stdin is not a real TTY —
+    e.g. piped input, CI, or this codebase's own background-task runner. That
+    keeps the function safe in scripts while giving real users the visual feedback
+    of asterisks they expect.
+
+    Supports backspace and Ctrl+C; ignores arrow keys and other control sequences.
+    """
+    if not sys.stdin.isatty():
+        # Piped / redirected — getpass falls through to stdin.readline silently
+        # and won't raise; visual masking is impossible without a terminal anyway.
+        return getpass.getpass(prompt)
+
+    if os.name == "nt":
+        return _masked_input_windows(prompt, mask)
+    return _masked_input_unix(prompt, mask)
+
+
+def _masked_input_windows(prompt: str, mask: str) -> str:
+    import msvcrt
+
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    buf: list[str] = []
+    while True:
+        ch = msvcrt.getwch()
+        if ch in ("\r", "\n"):
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            return "".join(buf)
+        if ch == "\x03":  # Ctrl+C
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            raise KeyboardInterrupt
+        if ch == "\x08":  # Backspace
+            if buf:
+                buf.pop()
+                sys.stdout.write("\b \b")
+                sys.stdout.flush()
+            continue
+        if ch in ("\x00", "\xe0"):
+            # Function / arrow key — swallow the second byte and ignore.
+            msvcrt.getwch()
+            continue
+        if ch.isprintable():
+            buf.append(ch)
+            sys.stdout.write(mask)
+            sys.stdout.flush()
+
+
+def _masked_input_unix(prompt: str, mask: str) -> str:
+    import termios
+    import tty
+
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    fd = sys.stdin.fileno()
+    old_attrs = termios.tcgetattr(fd)
+    buf: list[str] = []
+    try:
+        tty.setraw(fd)
+        while True:
+            ch = sys.stdin.read(1)
+            if ch in ("\r", "\n"):
+                sys.stdout.write("\n")
+                sys.stdout.flush()
+                return "".join(buf)
+            if ch == "\x03":  # Ctrl+C
+                raise KeyboardInterrupt
+            if ch in ("\x7f", "\x08"):  # Backspace / DEL
+                if buf:
+                    buf.pop()
+                    sys.stdout.write("\b \b")
+                    sys.stdout.flush()
+                continue
+            if ch == "\x1b":
+                # Escape sequence (arrow keys etc.) — drain the next two bytes.
+                sys.stdin.read(2)
+                continue
+            if ch.isprintable():
+                buf.append(ch)
+                sys.stdout.write(mask)
+                sys.stdout.flush()
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
+
+
 class ConsolePrompt:
-    """Default: read from stdin. Hides input for ``secret=True`` via getpass."""
+    """Default prompt: ``input()`` for visible answers, masked-input for secrets."""
 
     def ask(self, question: str, *, secret: bool = False) -> str:
         if secret:
-            return getpass.getpass(f"{question}: ")
+            return masked_input(f"{question}: ")
         return input(f"{question}: ").strip()
 
 
