@@ -14,7 +14,7 @@ from typing import Iterable
 
 import time
 
-from ..auth import Credentials, LoginError, LoginPrompt
+from ..auth import Credentials, LoginError, LoginPrompt, resolve_session_cookies
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -28,13 +28,12 @@ _TAG_SEARCH = "https://www.instagram.com/api/v1/tags/web_info/"
 class InstagramVendor(SocialVendor):
     name = "instagram"
 
-    def __init__(self, cookie_env: str = "IG_COOKIE") -> None:
-        sessionid = os.environ.get(cookie_env, "")
-        cookies = {"sessionid": sessionid} if sessionid else {}
-        self._client = HttpClient(cookies=cookies)
+    def __init__(self, cookies: dict[str, str] | None = None) -> None:
+        resolved = cookies if cookies is not None else resolve_session_cookies("instagram")
+        self._client = HttpClient(cookies=resolved)
         self._headers = {"x-ig-app-id": "936619743392459"}
-        if not sessionid:
-            log.info("IG_COOKIE not set — Instagram vendor will likely return empty.")
+        if not resolved.get("sessionid"):
+            log.info("Instagram vendor has no sessionid — likely empty results.")
 
     def fetch_own_posts(self, handle: str, limit: int = 50) -> list[SocialPost]:
         try:

@@ -12,7 +12,7 @@ import os
 import re
 from typing import Iterable
 
-from ..auth import Credentials, LoginError, LoginPrompt
+from ..auth import Credentials, LoginError, LoginPrompt, resolve_session_cookies
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -42,12 +42,15 @@ def _strip_html(s: str) -> str:
 class FacebookVendor(SocialVendor):
     name = "facebook"
 
-    def __init__(self, cookie_env: str = "FB_COOKIE") -> None:
-        cookie_raw = os.environ.get(cookie_env, "")
-        if not cookie_raw:
-            log.warning("FB_COOKIE not set — Facebook vendor will return empty results.")
-        self._client = HttpClient(cookies=_parse_cookie_header(cookie_raw))
-        self._authenticated = bool(cookie_raw)
+    def __init__(self, cookies: dict[str, str] | None = None) -> None:
+        resolved = cookies if cookies is not None else resolve_session_cookies("facebook")
+        if not resolved:
+            log.warning(
+                "Facebook vendor has no cookies (env FB_COOKIE / session store / "
+                "browser jar all empty) — returning [] for all calls."
+            )
+        self._client = HttpClient(cookies=resolved)
+        self._authenticated = bool(resolved)
 
     # ---- public ----
 

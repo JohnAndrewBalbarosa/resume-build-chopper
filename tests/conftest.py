@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+# Disable live browser-cookie scanning in tests; per-test fixtures can set their own.
+os.environ.setdefault("RESUME_BUILDER_NO_BROWSER_COOKIES", "1")
+# Isolate the session-store cache so tests don't pick up real cookies.
+os.environ.setdefault(
+    "RESUME_BUILDER_CACHE",
+    str(PROJECT_ROOT / ".pytest_cache" / "social-cache"),
+)
 
 
 @pytest.fixture

@@ -190,7 +190,12 @@ def login(
         "--from-browser",
         help="Skip programmatic login; pull cookies from local browser instead.",
     ),
-    browser: str = typer.Option("auto", "--browser", help="chrome|edge|firefox|brave|opera|auto"),
+    browser: str = typer.Option(
+        "auto",
+        "--browser",
+        help="chrome|edge|firefox|brave|opera|auto. `auto` tries Chrome first then "
+        "falls through the others so other users on Edge/Firefox still work.",
+    ),
 ) -> None:
     """Sign in to a social vendor. Prompts the password (hidden) and any 2FA challenges.
 

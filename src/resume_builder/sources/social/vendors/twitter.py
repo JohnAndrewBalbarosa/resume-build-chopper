@@ -12,7 +12,7 @@ import re
 from email.utils import parsedate_to_datetime
 from typing import Iterable
 
-from ..auth import Credentials, LoginError, LoginPrompt
+from ..auth import Credentials, LoginError, LoginPrompt, resolve_session_cookies
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -38,10 +38,14 @@ _STATUS_ID_RE = re.compile(r"/status/(\d+)")
 class TwitterVendor(SocialVendor):
     name = "twitter"
 
-    def __init__(self) -> None:
+    def __init__(self, cookies: dict[str, str] | None = None) -> None:
         env_host = os.environ.get("NITTER_HOST", "").strip()
         self._hosts = (env_host,) + _DEFAULT_HOSTS if env_host else _DEFAULT_HOSTS
-        self._client = HttpClient(min_interval_s=1.5)
+        # Cookies are optional for nitter, but logged-in Twitter sessions also work
+        # for direct x.com endpoints in future expansion. Resolve lazily so tests
+        # constructing TwitterVendor() don't pay browser-decryption cost.
+        resolved = cookies if cookies is not None else resolve_session_cookies("twitter")
+        self._client = HttpClient(min_interval_s=1.5, cookies=resolved)
 
     def fetch_own_posts(self, handle: str, limit: int = 50) -> list[SocialPost]:
         xml = self._fetch_first(f"/{handle}/rss")

@@ -13,7 +13,7 @@ import os
 import re
 from typing import Iterable
 
-from ..auth import Credentials, LoginError, LoginPrompt
+from ..auth import Credentials, LoginError, LoginPrompt, resolve_session_cookies
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -30,13 +30,14 @@ _AUTHOR_RE = re.compile(r'"actor":\{[^}]*"name":\{"text":"([^"]+)"')
 class LinkedInVendor(SocialVendor):
     name = "linkedin"
 
-    def __init__(self, cookie_env: str = "LI_COOKIE") -> None:
-        li_at = os.environ.get(cookie_env, "")
-        cookies = {"li_at": li_at} if li_at else {}
-        self._client = HttpClient(cookies=cookies)
-        self._authenticated = bool(li_at)
-        if not li_at:
-            log.info("LI_COOKIE not set — LinkedIn vendor limited to public pages.")
+    def __init__(self, cookies: dict[str, str] | None = None) -> None:
+        resolved = cookies if cookies is not None else resolve_session_cookies("linkedin")
+        self._client = HttpClient(cookies=resolved)
+        self._authenticated = bool(resolved.get("li_at"))
+        if not self._authenticated:
+            log.info(
+                "LinkedIn vendor has no li_at cookie — public-only mode."
+            )
 
     def fetch_own_posts(self, handle: str, limit: int = 50) -> list[SocialPost]:
         try:
