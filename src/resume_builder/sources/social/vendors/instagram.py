@@ -12,6 +12,9 @@ import os
 from datetime import datetime, timezone
 from typing import Iterable
 
+import time
+
+from ..auth import Credentials, LoginError, LoginPrompt
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -99,6 +102,101 @@ class InstagramVendor(SocialVendor):
                     text=caption,
                     author_name=author,
                 )
+
+
+class InstagramLogin:
+    """Instagram web login. Two-factor returns ``two_factor_required: true`` with
+    a ``two_factor_info`` blob whose ``two_factor_identifier`` we echo back with the code.
+    """
+
+    _HOME = "https://www.instagram.com/"
+    _LOGIN = "https://www.instagram.com/api/v1/web/accounts/login/ajax/"
+    _TWO_FACTOR = "https://www.instagram.com/api/v1/web/accounts/login/ajax/two_factor/"
+
+    def __init__(self, client: HttpClient | None = None) -> None:
+        self._client = client or HttpClient(min_interval_s=2.0)
+        self._app_id = "936619743392459"
+
+    def run(self, creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+        csrf = self._fetch_csrf()
+        enc_password = f"#PWD_INSTAGRAM_BROWSER:0:{int(time.time())}:{creds.password}"
+        headers = {
+            "x-csrftoken": csrf,
+            "x-ig-app-id": self._app_id,
+            "x-requested-with": "XMLHttpRequest",
+            "referer": self._HOME,
+        }
+        resp = self._client.post(
+            self._LOGIN,
+            data={
+                "username": creds.username,
+                "enc_password": enc_password,
+                "queryParams": "{}",
+                "optIntoOneTap": "false",
+            },
+            headers=headers,
+        )
+        data = _safe_json(resp) or {}
+        if data.get("two_factor_required"):
+            self._handle_two_factor(data, csrf, prompt)
+        elif not data.get("authenticated"):
+            msg = data.get("message") or data.get("error_type") or "unknown"
+            raise LoginError(f"instagram login: not authenticated ({msg})")
+        cookies = self._extract_ig_cookies()
+        if "sessionid" not in cookies:
+            raise LoginError("instagram login: sessionid cookie missing after auth")
+        return cookies
+
+    def _fetch_csrf(self) -> str:
+        self._client.get(self._HOME)
+        jar = getattr(self._client, "cookies", None) or []
+        for c in jar:
+            if getattr(c, "name", None) == "csrftoken":
+                return getattr(c, "value", "") or ""
+        raise LoginError("instagram login: csrftoken cookie missing on home page")
+
+    def _handle_two_factor(self, data: dict, csrf: str, prompt: LoginPrompt) -> None:
+        info = data.get("two_factor_info") or {}
+        identifier = info.get("two_factor_identifier")
+        username = info.get("username")
+        if not identifier or not username:
+            raise LoginError("instagram login: two_factor_info missing identifier")
+        code = prompt.ask("Instagram: enter the 2FA code (authenticator or SMS)")
+        headers = {
+            "x-csrftoken": csrf,
+            "x-ig-app-id": self._app_id,
+            "x-requested-with": "XMLHttpRequest",
+            "referer": self._HOME,
+        }
+        resp = self._client.post(
+            self._TWO_FACTOR,
+            data={
+                "username": username,
+                "verificationCode": code,
+                "identifier": identifier,
+                "trust_signal": "true",
+            },
+            headers=headers,
+        )
+        result = _safe_json(resp) or {}
+        if not result.get("authenticated"):
+            raise LoginError("instagram login: 2FA verification rejected")
+
+    def _extract_ig_cookies(self) -> dict[str, str]:
+        jar = getattr(self._client, "cookies", None)
+        if jar is None:
+            return {}
+        out: dict[str, str] = {}
+        for c in jar:
+            name = getattr(c, "name", None)
+            value = getattr(c, "value", None)
+            if name in ("sessionid", "csrftoken", "ds_user_id") and value:
+                out[name] = value
+        return out
+
+
+def login_instagram(creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+    return InstagramLogin().run(creds, prompt)
 
 
 def _safe_json(resp: object) -> dict | None:

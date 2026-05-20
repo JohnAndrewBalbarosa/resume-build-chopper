@@ -23,6 +23,8 @@ from .models import Mode
 from .pipeline import BuildInputs, Pipeline
 from .role import StaticRolePicker
 from .sources.social import build_default_aggregator, load_scrape_config
+from .sources.social.auth import ConsolePrompt, Credentials, LoginError, SessionStore
+from .sources.social.browser_cookies import import_cookies as import_browser_cookies
 
 app = typer.Typer(help="GitHub-aware role-targeted resume builder.", no_args_is_help=True)
 
@@ -158,6 +160,84 @@ def scrape_all(
         typer.echo(f"Wrote {output} ({len(result.posts)} posts, {len(result.mentions)} mentions)")
     else:
         typer.echo(text)
+
+
+_LOGIN_REGISTRY = {
+    "twitter": "resume_builder.sources.social.vendors.twitter:login_twitter",
+    "linkedin": "resume_builder.sources.social.vendors.linkedin:login_linkedin",
+    "facebook": "resume_builder.sources.social.vendors.facebook:login_facebook",
+    "instagram": "resume_builder.sources.social.vendors.instagram:login_instagram",
+}
+
+
+def _resolve_login(vendor: str):
+    target = _LOGIN_REGISTRY.get(vendor)
+    if not target:
+        raise typer.BadParameter(f"No login flow registered for vendor: {vendor}")
+    module_path, attr = target.split(":")
+    import importlib
+
+    mod = importlib.import_module(module_path)
+    return getattr(mod, attr)
+
+
+@app.command()
+def login(
+    vendor: str = typer.Option(..., "--vendor", help="twitter | linkedin | facebook | instagram"),
+    username: str = typer.Option(..., "--username", "-u"),
+    use_browser_cookies: bool = typer.Option(
+        False,
+        "--from-browser",
+        help="Skip programmatic login; pull cookies from local browser instead.",
+    ),
+    browser: str = typer.Option("auto", "--browser", help="chrome|edge|firefox|brave|opera|auto"),
+) -> None:
+    """Sign in to a social vendor. Prompts the password (hidden) and any 2FA challenges.
+
+    On programmatic-login failure (checkpoint, CAPTCHA, etc.), pass --from-browser
+    to read cookies from your already-signed-in browser session — no password needed.
+    """
+    store = SessionStore()
+    prompt = ConsolePrompt()
+
+    if use_browser_cookies:
+        cookies = import_browser_cookies(vendor, browser=browser)
+        if not cookies:
+            typer.secho(
+                f"Could not load {vendor} cookies from browser. Install browser_cookie3 "
+                "and make sure you are signed in.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=1)
+        store.save(vendor, cookies)
+        typer.secho(
+            f"Saved {len(cookies)} cookies for {vendor} from browser to {store.path(vendor)}",
+            fg=typer.colors.GREEN,
+        )
+        return
+
+    password = prompt.ask(f"{vendor} password", secret=True)
+    creds = Credentials(username=username, password=password)
+    login_fn = _resolve_login(vendor)
+    try:
+        cookies = login_fn(creds, prompt)
+    except LoginError as exc:
+        typer.secho(f"Login failed: {exc}", fg=typer.colors.RED)
+        typer.echo("Tip: retry with --from-browser if you can sign in via your browser.")
+        raise typer.Exit(code=1) from exc
+
+    store.save(vendor, cookies)
+    typer.secho(
+        f"Signed in. {len(cookies)} cookies saved to {store.path(vendor)}",
+        fg=typer.colors.GREEN,
+    )
+
+
+@app.command()
+def logout(vendor: str = typer.Option(..., "--vendor")) -> None:
+    """Clear the persisted session for a vendor."""
+    SessionStore().clear(vendor)
+    typer.echo(f"Cleared session for {vendor}.")
 
 
 if __name__ == "__main__":

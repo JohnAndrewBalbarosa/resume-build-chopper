@@ -12,6 +12,7 @@ import os
 import re
 from typing import Iterable
 
+from ..auth import Credentials, LoginError, LoginPrompt
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -122,3 +123,69 @@ class FacebookVendor(SocialVendor):
             if len(body) > 12:
                 return body
         return ""
+
+
+_HIDDEN_RE = re.compile(r'<input[^>]+type="hidden"[^>]*name="([^"]+)"[^>]*value="([^"]*)"', re.IGNORECASE)
+_CHECKPOINT_URL_RE = re.compile(r"https://[^\"' ]*checkpoint[^\"' ]*")
+
+
+class FacebookLogin:
+    """Facebook web login. mbasic.facebook.com is the friendliest surface for non-JS scripts.
+
+    Realistic note: a fresh programmatic login from an unrecognized IP almost
+    always lands on a checkpoint page that needs photo/identity verification —
+    no console can answer that. Caller should fall back to ``browser_cookies``.
+    """
+
+    _LOGIN_PAGE = "https://mbasic.facebook.com/login.php"
+    _LOGIN_SUBMIT = "https://mbasic.facebook.com/login/device-based/regular/login/"
+    _CHECKPOINT_SUBMIT = "https://mbasic.facebook.com/login/checkpoint/"
+
+    def __init__(self, client: HttpClient | None = None) -> None:
+        self._client = client or HttpClient(min_interval_s=2.5)
+
+    def run(self, creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+        hidden = self._fetch_form()
+        hidden.update({"email": creds.username, "pass": creds.password, "login": "Log In"})
+        resp = self._client.post(self._LOGIN_SUBMIT, data=hidden, allow_redirects=True)
+        body = getattr(resp, "text", "") or ""
+        url = getattr(resp, "url", "") or ""
+        if "checkpoint" in url.lower() or "checkpoint" in body[:4000].lower():
+            self._handle_checkpoint(body, prompt)
+        cookies = self._extract_fb_cookies()
+        if "c_user" not in cookies or "xs" not in cookies:
+            raise LoginError(
+                "facebook login: c_user / xs cookies not set — checkpoint likely; "
+                "try browser_cookies fallback."
+            )
+        return cookies
+
+    def _fetch_form(self) -> dict[str, str]:
+        resp = self._client.get(self._LOGIN_PAGE)
+        html = getattr(resp, "text", "") or ""
+        return dict(_HIDDEN_RE.findall(html))
+
+    def _handle_checkpoint(self, html: str, prompt: LoginPrompt) -> None:
+        if "approvals_code" not in html and "2fa" not in html.lower():
+            raise LoginError("facebook login: checkpoint requires browser (photo / identity check).")
+        fields = dict(_HIDDEN_RE.findall(html))
+        code = prompt.ask("Facebook: enter the 2FA code (authenticator / SMS)")
+        fields["approvals_code"] = code
+        fields["submit[Submit Code]"] = "Submit Code"
+        self._client.post(self._CHECKPOINT_SUBMIT, data=fields, allow_redirects=True)
+
+    def _extract_fb_cookies(self) -> dict[str, str]:
+        jar = getattr(self._client, "cookies", None)
+        if jar is None:
+            return {}
+        out: dict[str, str] = {}
+        for c in jar:
+            name = getattr(c, "name", None)
+            value = getattr(c, "value", None)
+            if name in ("c_user", "xs", "fr", "datr") and value:
+                out[name] = value
+        return out
+
+
+def login_facebook(creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+    return FacebookLogin().run(creds, prompt)

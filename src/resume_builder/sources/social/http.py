@@ -71,17 +71,27 @@ class HttpClient:
         self._last_call_ts = time.monotonic()
 
     def get(self, url: str, **kwargs: Any) -> Any:
+        return self._request("GET", url, **kwargs)
+
+    def post(self, url: str, **kwargs: Any) -> Any:
+        return self._request("POST", url, **kwargs)
+
+    @property
+    def cookies(self) -> Any:
+        return self._session.cookies
+
+    def _request(self, method: str, url: str, **kwargs: Any) -> Any:
         self._throttle()
         last_exc: Exception | None = None
         for attempt in range(self._max_retries + 1):
             try:
                 if self._impersonate:
                     kwargs.setdefault("impersonate", self._impersonate)
-                response = self._session.get(url, timeout=self._timeout_s, **kwargs)
+                response = self._session.request(method, url, timeout=self._timeout_s, **kwargs)
                 return response
             except Exception as exc:  # noqa: BLE001 - retry layer
                 last_exc = exc
-                log.debug("GET %s failed (attempt %d): %s", url, attempt + 1, exc)
+                log.debug("%s %s failed (attempt %d): %s", method, url, attempt + 1, exc)
                 time.sleep(1.5 * (attempt + 1))
         assert last_exc is not None
         raise last_exc

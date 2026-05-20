@@ -13,6 +13,7 @@ import os
 import re
 from typing import Iterable
 
+from ..auth import Credentials, LoginError, LoginPrompt
 from ..base import SocialVendor
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
@@ -92,3 +93,67 @@ def _decode_li_text(raw: str) -> str:
         return json.loads(f'"{raw}"')
     except json.JSONDecodeError:
         return raw
+
+
+_CSRF_RE = re.compile(r'name="loginCsrfParam"\s+value="([^"]+)"')
+
+
+class LinkedInLogin:
+    """LinkedIn web login. 2FA path lands on /checkpoint/challenge — console-prompt the PIN."""
+
+    _LOGIN_PAGE = "https://www.linkedin.com/login"
+    _SUBMIT = "https://www.linkedin.com/checkpoint/lg/login-submit"
+    _CHALLENGE_SUBMIT = "https://www.linkedin.com/checkpoint/challenge/verify"
+
+    def __init__(self, client: HttpClient | None = None) -> None:
+        self._client = client or HttpClient(min_interval_s=2.0)
+
+    def run(self, creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+        csrf = self._fetch_csrf()
+        resp = self._client.post(
+            self._SUBMIT,
+            data={
+                "session_key": creds.username,
+                "session_password": creds.password,
+                "loginCsrfParam": csrf,
+            },
+            allow_redirects=True,
+        )
+        html = getattr(resp, "text", "") or ""
+        if "/checkpoint/challenge" in (getattr(resp, "url", "") or "") or "challengeId" in html:
+            self._solve_challenge(html, prompt)
+        cookies = self._extract_li_cookies()
+        if "li_at" not in cookies:
+            raise LoginError("linkedin login: li_at cookie not set — likely checkpoint or bad credentials")
+        return cookies
+
+    def _fetch_csrf(self) -> str:
+        resp = self._client.get(self._LOGIN_PAGE)
+        m = _CSRF_RE.search(getattr(resp, "text", "") or "")
+        if not m:
+            raise LoginError("linkedin login: could not extract loginCsrfParam")
+        return m.group(1)
+
+    def _solve_challenge(self, html: str, prompt: LoginPrompt) -> None:
+        fields = dict(re.findall(r'name="([^"]+)"\s+value="([^"]*)"', html))
+        if "challengeId" not in fields:
+            raise LoginError("linkedin login: challenge form fields missing")
+        code = prompt.ask("LinkedIn: enter the verification PIN sent to email / phone / app")
+        fields["pin"] = code
+        self._client.post(self._CHALLENGE_SUBMIT, data=fields, allow_redirects=True)
+
+    def _extract_li_cookies(self) -> dict[str, str]:
+        jar = getattr(self._client, "cookies", None)
+        if jar is None:
+            return {}
+        out: dict[str, str] = {}
+        for c in jar:
+            name = getattr(c, "name", None)
+            value = getattr(c, "value", None)
+            if name in ("li_at", "JSESSIONID") and value:
+                out[name] = value
+        return out
+
+
+def login_linkedin(creds: Credentials, prompt: LoginPrompt) -> dict[str, str]:
+    return LinkedInLogin().run(creds, prompt)
