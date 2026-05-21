@@ -18,11 +18,12 @@ def _make_playwright(
     storage_state: dict | None = None,
     *,
     query_selector_returns: object = MagicMock(),
+    page_url: str = "https://www.facebook.com/",
 ):
     """Build a fake sync_playwright that returns the supplied cookie jars in order.
 
-    ``query_selector_returns`` is what ``page.query_selector`` returns whenever it's
-    called — default is a truthy MagicMock so the success-selector check passes.
+    ``page_url`` is what ``page.url`` reports (must be a real string so the
+    substring URL check works).
     """
     context = MagicMock()
     storage = storage_state if storage_state is not None else {"cookies": [], "origins": []}
@@ -32,6 +33,7 @@ def _make_playwright(
     browser.new_context.return_value = context
     page = MagicMock()
     page.query_selector.return_value = query_selector_returns
+    page.url = page_url
     context.new_page.return_value = page
     chromium = MagicMock()
     chromium.launch.return_value = browser
@@ -104,7 +106,7 @@ def test_missing_playwright_raises_clear_install_message(monkeypatch):
 
 def test_different_vendor_uses_right_success_cookie():
     jars = [[{"name": "li_at", "value": "AbCdEf"}], [{"name": "li_at", "value": "AbCdEf"}]]
-    fake_pw, _, page, _ = _make_playwright(jars)
+    fake_pw, _, page, _ = _make_playwright(jars, page_url="https://www.linkedin.com/feed/")
     result = open_login_window(
         "linkedin",
         poll_seconds=0.0,
@@ -133,6 +135,40 @@ def test_prefill_username_types_into_facebook_email_field():
     )
     page.wait_for_selector.assert_called_once_with("input#email", timeout=10_000)
     page.fill.assert_called_once_with("input#email", "jane.doe@example.com")
+
+
+def test_login_not_complete_until_url_matches_target_domain():
+    """Cookie + element present, but page.url on a wrong host — must NOT succeed.
+
+    Verifies that the URL substring check (``success_url_contains``) participates
+    in the success gate as a third independent signal alongside cookie + element.
+    """
+    context = MagicMock()
+    context.cookies.return_value = [{"name": "c_user", "value": "100"}]
+    context.storage_state.return_value = {"cookies": [], "origins": []}
+    browser = MagicMock()
+    browser.new_context.return_value = context
+    page = MagicMock()
+    page.query_selector.return_value = MagicMock()  # selector present
+    page.url = "https://www.bing.com/search?q=facebook"  # WRONG host
+    context.new_page.return_value = page
+    chromium = MagicMock()
+    chromium.launch.return_value = browser
+    pw = MagicMock()
+    pw.chromium = chromium
+
+    @contextmanager
+    def fake_sync_playwright():
+        yield pw
+
+    with pytest.raises(TimeoutError):
+        open_login_window(
+            "facebook",
+            poll_seconds=0.0,
+            timeout_seconds=0.05,
+            settle_seconds=0.0,
+            playwright_module=fake_sync_playwright,
+        )
 
 
 def test_twofa_callback_fires_when_2fa_input_appears(monkeypatch):

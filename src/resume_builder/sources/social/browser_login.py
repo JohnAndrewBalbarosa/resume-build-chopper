@@ -25,13 +25,15 @@ class VendorConfig:
 
     url: str
     success_cookie: str
-    # Optional: an element whose appearance also signals a successful sign-in
-    # (useful when a vendor sets the success cookie only after a redirect).
+    # Optional: an element whose appearance also signals a successful sign-in.
     success_selector: str | None
-    # Optional: the form field where we can pre-fill a username/email to save a step.
+    # Optional: substring that must appear in ``page.url`` for the login to be
+    # considered complete (matches the ``page.waitForURL`` heuristic the FB
+    # DevTools AI suggests). When None, URL is not part of the success check.
+    success_url_contains: str | None
+    # Optional: form field where we can pre-fill a username/email to save a step.
     username_selector: str | None
-    # Optional: heuristic to detect that the vendor is asking for a 2FA code so we can
-    # nudge the user instead of just sitting silent.
+    # Optional: heuristic to detect that the vendor is asking for a 2FA code.
     twofa_selector: str | None
 
 
@@ -39,16 +41,18 @@ _VENDOR_CONFIG: dict[str, VendorConfig] = {
     "facebook": VendorConfig(
         url="https://www.facebook.com/",
         success_cookie="c_user",
-        # Facebook home feed renders the main column with [role=main].
         success_selector="div[role='main']",
+        # After login, FB lands on www.facebook.com/ — login forms live under
+        # the same host but with paths like /login.php, /checkpoint/, etc.
+        success_url_contains="facebook.com/",
         username_selector="input#email",
-        # Two-factor / checkpoint form input from the DevTools analysis.
         twofa_selector="input#approvals_code",
     ),
     "twitter": VendorConfig(
         url="https://x.com/i/flow/login",
         success_cookie="auth_token",
         success_selector="[data-testid='primaryColumn']",
+        success_url_contains="x.com/home",
         username_selector="input[autocomplete='username']",
         twofa_selector="input[autocomplete='one-time-code']",
     ),
@@ -56,6 +60,7 @@ _VENDOR_CONFIG: dict[str, VendorConfig] = {
         url="https://www.linkedin.com/login",
         success_cookie="li_at",
         success_selector="main",
+        success_url_contains="linkedin.com/feed",
         username_selector="input#username",
         twofa_selector="input#input__phone_verification_pin",
     ),
@@ -63,6 +68,7 @@ _VENDOR_CONFIG: dict[str, VendorConfig] = {
         url="https://www.instagram.com/accounts/login/",
         success_cookie="sessionid",
         success_selector="main[role='main']",
+        success_url_contains="instagram.com/",
         username_selector="input[name='username']",
         twofa_selector="input[name='verificationCode']",
     ),
@@ -123,7 +129,11 @@ def open_login_window(
         deadline = time.monotonic() + timeout_seconds
         while time.monotonic() < deadline:
             cookies = _jar_to_dict(context.cookies())
-            if cfg.success_cookie in cookies and _selector_present(page, cfg.success_selector):
+            if (
+                cfg.success_cookie in cookies
+                and _selector_present(page, cfg.success_selector)
+                and _url_matches(page, cfg.success_url_contains)
+            ):
                 time.sleep(settle_seconds)
                 cookies = _jar_to_dict(context.cookies())
                 state = context.storage_state()
@@ -157,6 +167,22 @@ def _selector_present(page, selector: str | None) -> bool:
     try:
         element = page.query_selector(selector)
         return bool(element)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _url_matches(page, pattern: str | None) -> bool:
+    """Return True if ``pattern`` appears anywhere in ``page.url``.
+
+    Matches the spirit of Playwright's ``page.waitForURL`` substring check that the
+    FB DevTools AI snippet uses — after a successful login the address bar must
+    have already moved to a page on the vendor's domain.
+    """
+    if not pattern:
+        return True
+    try:
+        current = getattr(page, "url", "") or ""
+        return pattern in current
     except Exception:  # noqa: BLE001
         return False
 
