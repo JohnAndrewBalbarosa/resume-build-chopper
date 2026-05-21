@@ -284,6 +284,31 @@ class SessionStore:
             except OSError as exc:
                 log.warning("session clear failed for %s: %s", vendor, exc)
 
+    def storage_state_path(self, vendor: str) -> Path:
+        return self._dir / f"{vendor}.storage_state.json"
+
+    def save_storage_state(self, vendor: str, state: dict) -> None:
+        """Persist a Playwright ``storage_state`` blob for headless reuse."""
+        p = self.storage_state_path(vendor)
+        try:
+            p.write_text(json.dumps(state, indent=2), encoding="utf-8")
+            try:
+                os.chmod(p, 0o600)
+            except OSError:
+                pass
+        except OSError as exc:
+            log.warning("storage_state save failed for %s: %s", vendor, exc)
+
+    def load_storage_state(self, vendor: str) -> dict | None:
+        p = self.storage_state_path(vendor)
+        if not p.exists():
+            return None
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            log.warning("storage_state load failed for %s: %s", vendor, exc)
+            return None
+
 
 # ---- mixin / capability marker ----
 

@@ -60,16 +60,13 @@ def test_unparseable_curl_raises_login_error():
         parse_curl_command("curl 'unterminated string")
 
 
-def test_login_option_4_saves_session(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    """End-to-end through the CLI: paste a curl, cookies land in SessionStore."""
+def test_login_advanced_paste_curl_saves_session(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """End-to-end: pick vendor -> advanced -> paste-curl path saves the session."""
     monkeypatch.setenv("RESUME_BUILDER_CACHE", str(tmp_path))
 
-    prompts = iter(["facebook", "4"])
-
-    # Multi-line paste loop reads via input(); feed the curl then an empty line.
-    paste_lines = iter(
-        _FB_CURL.splitlines() + [""]  # blank line ends the paste
-    )
+    # Menu: vendor=facebook, top-choice=3 (advanced), advanced=c (curl)
+    prompts = iter(["facebook", "3", "c"])
+    paste_lines = iter(_FB_CURL.splitlines() + [""])
 
     def fake_input(*a, **kw):
         return next(paste_lines)
@@ -83,5 +80,5 @@ def test_login_option_4_saves_session(tmp_path: Path, monkeypatch: pytest.Monkey
 
     assert result.exit_code == 0, result.output
     saved = (tmp_path / "sessions" / "facebook.json").read_text(encoding="utf-8")
-    assert "100012345" in saved  # c_user landed
+    assert "100012345" in saved
     assert "xs" in saved

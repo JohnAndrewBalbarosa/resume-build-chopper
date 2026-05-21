@@ -49,11 +49,14 @@ def test_collect_manual_cookies_unknown_vendor_returns_empty():
     assert _collect_manual_cookies("ghost") == {}
 
 
-def test_login_option_3_saves_session(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    """End-to-end: pick vendor + choose option 3 + paste cookies -> session saved."""
+def test_login_advanced_paste_cookies_saves_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """End-to-end: pick vendor -> advanced -> paste cookies path saves the session."""
     monkeypatch.setenv("RESUME_BUILDER_CACHE", str(tmp_path))
 
-    inputs = iter(["facebook", "3"])  # vendor, then option
+    # Menu flow: vendor=facebook, top-choice=3 (advanced), advanced=b (paste cookies)
+    inputs = iter(["facebook", "3", "b"])
     pastes = iter(["100012345", "xs-token-here"])
 
     runner = CliRunner()

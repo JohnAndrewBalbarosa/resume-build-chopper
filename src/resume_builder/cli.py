@@ -31,6 +31,10 @@ from .sources.social.auth import (
     masked_input,
     parse_curl_command,
 )
+from .sources.social.browser_login import (
+    PlaywrightNotInstalled,
+    open_login_window,
+)
 from .sources.social.browser_cookies import import_cookies_report
 
 app = typer.Typer(help="GitHub-aware role-targeted resume builder.", no_args_is_help=True)
@@ -312,90 +316,20 @@ def login() -> None:
     vendor = _pick_vendor_interactive()
 
     typer.echo("\nHow do you want to sign in?")
-    typer.echo("  1. Use cookies from my browser automatically")
-    typer.echo("  2. Type my username and password here")
-    typer.echo("  3. Paste individual cookie values from DevTools")
-    typer.echo("  4. Paste a `curl` command from DevTools (Recommended — handles any 2FA)")
-    choice = typer.prompt("Pick (1, 2, 3, or 4)", default="4").strip()
+    typer.echo("  1. Open a sign-in window — just log in like normal (Recommended)")
+    typer.echo("  2. Type my username and password here in the terminal")
+    typer.echo("  3. Advanced options")
+    choice = typer.prompt("Pick (1, 2, or 3)", default="1").strip()
 
     if choice == "1":
-        typer.echo("\nWhich browser are you signed in on?")
-        typer.echo("  1. Chrome  (needs admin shell on Windows)")
-        typer.echo("  2. Edge")
-        typer.echo("  3. Firefox")
-        typer.echo("  4. Brave")
-        typer.echo("  5. Opera")
-        typer.echo("  6. Auto (try all, Chrome first)")
-        b_raw = typer.prompt("Pick (1-6)", default="6").strip()
-        b_map = {"1": "chrome", "2": "edge", "3": "firefox", "4": "brave", "5": "opera", "6": "auto"}
-        browser = b_map.get(b_raw, "auto")
-        report = import_cookies_report(vendor, browser=browser)
-        typer.echo("\nBrowser cookie probe:")
-        for name, status in report.attempts:
-            typer.echo(f"  {name:<10} {status}")
-        if not report.ok:
-            app_bound = any(
-                "unable to get key" in status.lower()
-                or "app-bound" in status.lower()
-                for _, status in report.attempts
-            )
-            requires_admin = any(
-                "requiresadmin" in status.lower() for _, status in report.attempts
-            )
-            typer.echo("")
-            if app_bound:
-                typer.secho(
-                    "Chrome v127+ uses app-bound encryption that browser_cookie3 "
-                    "cannot read. Admin shell will NOT help. Try Edge or Firefox, "
-                    "or use option 3 (paste cookies from DevTools) — that always works.",
-                    fg=typer.colors.RED,
-                )
-            elif requires_admin:
-                typer.secho(
-                    "Chrome cookies on this box are DPAPI-encrypted at user scope. "
-                    "Right-click PowerShell -> 'Run as administrator' and retry, "
-                    "or use option 3 (paste from DevTools) — no admin needed.",
-                    fg=typer.colors.RED,
-                )
-            else:
-                typer.secho(
-                    f"No {vendor} cookies recovered. Make sure you're signed in "
-                    "on that browser first, or use option 3 (paste from DevTools).",
-                    fg=typer.colors.RED,
-                )
-            raise typer.Exit(code=1)
-        store.save(vendor, report.cookies)
-        typer.secho(
-            f"\nSaved {len(report.cookies)} cookies for {vendor} -> {store.path(vendor)}",
-            fg=typer.colors.GREEN,
-        )
-        return
+        ok = _run_playwright_login(vendor, store)
+        raise typer.Exit(code=0 if ok else 1)
 
     if choice == "3":
-        cookies = _collect_manual_cookies(vendor)
-        if not cookies:
-            typer.secho("No cookies entered — aborting.", fg=typer.colors.RED)
-            raise typer.Exit(code=1)
-        store.save(vendor, cookies)
-        typer.secho(
-            f"\nSaved {len(cookies)} cookies for {vendor} -> {store.path(vendor)}",
-            fg=typer.colors.GREEN,
-        )
+        _run_advanced_submenu(vendor, store)
         return
 
-    if choice == "4":
-        cookies = _collect_curl_command(vendor)
-        if not cookies:
-            typer.secho("No usable cookies in curl — aborting.", fg=typer.colors.RED)
-            raise typer.Exit(code=1)
-        store.save(vendor, cookies)
-        typer.secho(
-            f"\nSaved {len(cookies)} cookies for {vendor} -> {store.path(vendor)}",
-            fg=typer.colors.GREEN,
-        )
-        return
-
-    # Username/password path
+    # ---- option 2: type credentials in this terminal ----
     username = typer.prompt(f"{vendor} username or email")
     password = masked_input(f"{vendor} password (shown as *): ")
     if not password:
@@ -407,11 +341,112 @@ def login() -> None:
         cookies = login_fn(creds, ConsolePrompt())
     except LoginError as exc:
         typer.secho(f"\nLogin failed: {exc}", fg=typer.colors.RED)
-        typer.echo("Tip: try the browser-cookie path instead — no password needed.")
+        typer.echo("Tip: try option 1 (sign-in window) — handles 2FA, CAPTCHA, anything.")
         raise typer.Exit(code=1) from exc
     store.save(vendor, cookies)
     typer.secho(
         f"\nSigned in. {len(cookies)} cookies saved to {store.path(vendor)}",
+        fg=typer.colors.GREEN,
+    )
+
+
+def _run_playwright_login(vendor: str, store: SessionStore) -> bool:
+    typer.echo(
+        "\nA browser window will open. Sign in like you normally would — "
+        "username, password, and any 2FA codes. When you reach your home page, "
+        "the window will close automatically and your session is saved."
+    )
+    try:
+        result = open_login_window(vendor)
+    except PlaywrightNotInstalled as exc:
+        typer.secho(f"\n{exc}", fg=typer.colors.RED)
+        return False
+    except TimeoutError as exc:
+        typer.secho(f"\n{exc}", fg=typer.colors.RED)
+        return False
+    except Exception as exc:  # noqa: BLE001
+        typer.secho(f"\nBrowser login failed: {exc}", fg=typer.colors.RED)
+        return False
+    store.save(vendor, result.cookies)
+    if result.storage_state is not None:
+        store.save_storage_state(vendor, result.storage_state)
+    typer.secho(
+        f"\nSigned in. {len(result.cookies)} cookies saved to {store.path(vendor)}",
+        fg=typer.colors.GREEN,
+    )
+    return True
+
+
+def _run_advanced_submenu(vendor: str, store: SessionStore) -> None:
+    typer.echo("\nAdvanced options:")
+    typer.echo("  a. Read cookies from my installed browser jar (Chrome v127+ usually fails)")
+    typer.echo("  b. Paste cookie values individually")
+    typer.echo("  c. Paste a `curl` command from DevTools")
+    adv = typer.prompt("Pick (a, b, or c)", default="c").strip().lower()
+
+    if adv == "a":
+        _legacy_browser_jar_login(vendor, store)
+        return
+    if adv == "b":
+        cookies = _collect_manual_cookies(vendor)
+        if not cookies:
+            typer.secho("No cookies entered.", fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+        store.save(vendor, cookies)
+        typer.secho(f"\nSaved {len(cookies)} cookies -> {store.path(vendor)}", fg=typer.colors.GREEN)
+        return
+    if adv == "c":
+        cookies = _collect_curl_command(vendor)
+        if not cookies:
+            typer.secho("No cookies in curl.", fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+        store.save(vendor, cookies)
+        typer.secho(f"\nSaved {len(cookies)} cookies -> {store.path(vendor)}", fg=typer.colors.GREEN)
+        return
+    typer.secho(f"Unknown option: {adv}", fg=typer.colors.RED)
+    raise typer.Exit(code=1)
+
+
+def _legacy_browser_jar_login(vendor: str, store: SessionStore) -> None:
+    typer.echo("\nWhich browser?  1.Chrome  2.Edge  3.Firefox  4.Brave  5.Opera  6.Auto")
+    b_raw = typer.prompt("Pick (1-6)", default="6").strip()
+    b_map = {"1": "chrome", "2": "edge", "3": "firefox", "4": "brave", "5": "opera", "6": "auto"}
+    browser = b_map.get(b_raw, "auto")
+    report = import_cookies_report(vendor, browser=browser)
+    typer.echo("\nBrowser cookie probe:")
+    for name, status in report.attempts:
+        typer.echo(f"  {name:<10} {status}")
+    if not report.ok:
+        app_bound = any(
+            "unable to get key" in status.lower() or "app-bound" in status.lower()
+            for _, status in report.attempts
+        )
+        requires_admin = any(
+            "requiresadmin" in status.lower() for _, status in report.attempts
+        )
+        typer.echo("")
+        if app_bound:
+            typer.secho(
+                "Chrome v127+ uses app-bound encryption that browser_cookie3 cannot "
+                "read. Try option 1 (sign-in window) instead — it always works.",
+                fg=typer.colors.RED,
+            )
+        elif requires_admin:
+            typer.secho(
+                "Chrome cookies are DPAPI-encrypted at user scope. Run PowerShell as "
+                "administrator, or use option 1 (sign-in window) — no admin needed.",
+                fg=typer.colors.RED,
+            )
+        else:
+            typer.secho(
+                f"No {vendor} cookies recovered. Sign in on that browser first, "
+                "or use option 1 (sign-in window).",
+                fg=typer.colors.RED,
+            )
+        raise typer.Exit(code=1)
+    store.save(vendor, report.cookies)
+    typer.secho(
+        f"\nSaved {len(report.cookies)} cookies -> {store.path(vendor)}",
         fg=typer.colors.GREEN,
     )
 
