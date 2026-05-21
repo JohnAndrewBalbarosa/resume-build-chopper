@@ -29,6 +29,7 @@ from .sources.social.auth import (
     LoginError,
     SessionStore,
     masked_input,
+    parse_curl_command,
 )
 from .sources.social.browser_cookies import import_cookies_report
 
@@ -239,6 +240,56 @@ def _collect_manual_cookies(vendor: str) -> dict[str, str]:
     return out
 
 
+def _read_curl_paste() -> str:
+    """Read a multi-line curl command from stdin. End on an empty line."""
+    typer.echo(
+        "\nPaste the curl command below. Press Enter on an EMPTY line when done.\n"
+        "(In Chrome DevTools: Network tab -> right-click a request -> Copy -> 'Copy as cURL (bash)')\n"
+    )
+    lines: list[str] = []
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            break
+        if not line.strip():
+            if lines:
+                break
+            continue
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _collect_curl_command(vendor: str) -> dict[str, str]:
+    """Parse a pasted curl command and keep only the cookies we expect for this vendor.
+
+    Returns the curl-supplied cookies filtered to the vendor's whitelist + any extras
+    that happen to be there (FB needs c_user/xs/fr/datr; we keep all four so future
+    code can use them).
+    """
+    raw = _read_curl_paste()
+    if not raw:
+        return {}
+    try:
+        extract = parse_curl_command(raw)
+    except LoginError as exc:
+        typer.secho(f"Curl parse failed: {exc}", fg=typer.colors.RED)
+        return {}
+
+    typer.echo(f"\nParsed {len(extract.cookies)} cookies from the curl command.")
+    required = _VENDOR_COOKIES.get(vendor, ())
+    missing = [name for name in required if name not in extract.cookies]
+    if missing:
+        typer.secho(
+            f"Warning: missing required cookies for {vendor}: {', '.join(missing)}. "
+            "The session may not authenticate properly.",
+            fg=typer.colors.YELLOW,
+        )
+    if extract.url:
+        typer.echo(f"  Request URL was: {extract.url}")
+    return dict(extract.cookies)
+
+
 def _resolve_login(vendor: str):
     target = _LOGIN_REGISTRY.get(vendor)
     if not target:
@@ -263,8 +314,9 @@ def login() -> None:
     typer.echo("\nHow do you want to sign in?")
     typer.echo("  1. Use cookies from my browser automatically")
     typer.echo("  2. Type my username and password here")
-    typer.echo("  3. Paste cookie values from DevTools (most reliable — works with any Chrome version)")
-    choice = typer.prompt("Pick (1, 2, or 3)", default="3").strip()
+    typer.echo("  3. Paste individual cookie values from DevTools")
+    typer.echo("  4. Paste a `curl` command from DevTools (Recommended — handles any 2FA)")
+    choice = typer.prompt("Pick (1, 2, 3, or 4)", default="4").strip()
 
     if choice == "1":
         typer.echo("\nWhich browser are you signed in on?")
@@ -323,6 +375,18 @@ def login() -> None:
         cookies = _collect_manual_cookies(vendor)
         if not cookies:
             typer.secho("No cookies entered — aborting.", fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+        store.save(vendor, cookies)
+        typer.secho(
+            f"\nSaved {len(cookies)} cookies for {vendor} -> {store.path(vendor)}",
+            fg=typer.colors.GREEN,
+        )
+        return
+
+    if choice == "4":
+        cookies = _collect_curl_command(vendor)
+        if not cookies:
+            typer.secho("No usable cookies in curl — aborting.", fg=typer.colors.RED)
             raise typer.Exit(code=1)
         store.save(vendor, cookies)
         typer.secho(

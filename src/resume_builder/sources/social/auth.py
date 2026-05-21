@@ -312,6 +312,63 @@ def _parse_cookie_string(raw: str) -> dict[str, str]:
     return out
 
 
+@dataclass(frozen=True)
+class CurlExtract:
+    url: str | None
+    headers: dict[str, str]
+    cookies: dict[str, str]
+
+
+def parse_curl_command(curl_text: str) -> CurlExtract:
+    """Parse a ``curl`` command as copied from Chrome DevTools Network panel.
+
+    Handles bash-style line continuations (``\\``) and the cmd.exe variant (``^``).
+    Pulls every ``-H``/``--header`` flag, the ``-b``/``--cookie`` flag, and any
+    ``Cookie`` header into a single normalized dict. The URL is the last token
+    that looks like an HTTP URL.
+    """
+    import shlex
+
+    normalized = (
+        curl_text.replace("\\\r\n", " ")
+        .replace("\\\n", " ")
+        .replace("^\r\n", " ")
+        .replace("^\n", " ")
+    )
+    try:
+        tokens = shlex.split(normalized, posix=True)
+    except ValueError as exc:
+        raise LoginError(f"could not parse curl command: {exc}") from exc
+
+    headers: dict[str, str] = {}
+    cookies: dict[str, str] = {}
+    url: str | None = None
+    i = 0
+    while i < len(tokens):
+        tok = tokens[i]
+        if tok in ("-H", "--header") and i + 1 < len(tokens):
+            value = tokens[i + 1]
+            if ":" in value:
+                name, body = value.split(":", 1)
+                headers[name.strip()] = body.strip()
+            i += 2
+            continue
+        if tok in ("-b", "--cookie") and i + 1 < len(tokens):
+            cookies.update(_parse_cookie_string(tokens[i + 1]))
+            i += 2
+            continue
+        if tok.startswith("http://") or tok.startswith("https://"):
+            url = tok
+        i += 1
+
+    # Cookies in DevTools curls usually live inside the Cookie header.
+    for hdr_name in ("Cookie", "cookie"):
+        if hdr_name in headers:
+            cookies.update(_parse_cookie_string(headers[hdr_name]))
+
+    return CurlExtract(url=url, headers=headers, cookies=cookies)
+
+
 # Env-var contract per vendor. Some carry the full cookie header (FB),
 # others carry just the session token (LI/IG); both styles work because we
 # pass the resulting dict through to requests.cookies.set.
