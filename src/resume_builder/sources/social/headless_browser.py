@@ -1,20 +1,12 @@
-"""Headless Chromium scraper that reuses the storage_state captured at sign-in.
+"""Playwright scrape session — visible Chromium by default, with scroll-to-load.
 
-The first run of ``resume-build login`` opens a real Chrome window for the user to
-sign in (with 2FA, CAPTCHA, whatever). That window writes
-``~/.cache/resume-builder/social/sessions/{vendor}.storage_state.json`` — the full
-cookies + localStorage + IndexedDB snapshot of an authenticated session.
+Despite the file name (kept for import-path stability), the default ``headless``
+value is ``False``: the user sees the same Chromium that signed them in, navigating
+their feed and pulling posts. Visible mode also reduces bot-detection noise that
+fully-headless Chromium triggers on Facebook and LinkedIn.
 
-This module wraps that snapshot so vendors can fetch any URL on the vendor's domain
-as the logged-in user, fully headless, without re-prompting.
-
-Usage::
-
-    with HeadlessBrowser("facebook") as page:
-        page.goto("https://www.facebook.com/jane.doe")
-        html = page.content()
-
-The context manager handles browser teardown even if the caller raises.
+A scroll helper drives infinite-scroll feeds so the scraper captures every post,
+not just the first viewport.
 """
 
 from __future__ import annotations
@@ -37,12 +29,13 @@ class NoStoredSessionError(RuntimeError):
 
 
 @contextmanager
-def HeadlessBrowser(  # noqa: N802 - context-manager helper, capitalized like a class
+def PlaywrightSession(  # noqa: N802 - context-manager helper
     vendor: str,
     *,
+    headless: bool = False,
     playwright_module=None,
     store: SessionStore | None = None,
-    timeout_ms: int = 20_000,
+    timeout_ms: int = 30_000,
 ) -> Iterator[object]:
     """Yield a Playwright ``page`` bound to the vendor's stored authenticated context."""
     store = store or SessionStore()
@@ -54,7 +47,7 @@ def HeadlessBrowser(  # noqa: N802 - context-manager helper, capitalized like a 
     sync_playwright = _resolve_playwright(playwright_module)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=headless)
         try:
             context = browser.new_context(storage_state=state)
             context.set_default_timeout(timeout_ms)
@@ -64,24 +57,62 @@ def HeadlessBrowser(  # noqa: N802 - context-manager helper, capitalized like a 
             browser.close()
 
 
+# Backwards-compatible alias for older imports.
+HeadlessBrowser = PlaywrightSession
+
+
+def scroll_collect(
+    page,
+    item_selector: str,
+    *,
+    max_scrolls: int = 60,
+    settle_ms: int = 1500,
+    no_growth_passes: int = 3,
+) -> list:
+    """Scroll the page until ``item_selector`` stops growing, then return all matches.
+
+    ``max_scrolls`` is the hard cap on scroll cycles; ``no_growth_passes`` is how
+    many consecutive scrolls with the same item count we tolerate before declaring
+    the feed exhausted (Facebook sometimes lazy-loads with a small delay).
+    """
+    seen = 0
+    flat = 0
+    for _ in range(max_scrolls):
+        items = page.query_selector_all(item_selector) or []
+        if len(items) > seen:
+            seen = len(items)
+            flat = 0
+        else:
+            flat += 1
+            if flat >= no_growth_passes:
+                break
+        try:
+            page.evaluate("window.scrollBy(0, window.innerHeight * 0.9)")
+        except Exception as exc:  # noqa: BLE001
+            log.debug("scroll failed: %s", exc)
+            break
+        page.wait_for_timeout(settle_ms)
+    return page.query_selector_all(item_selector) or []
+
+
 def fetch_rendered_html(
     vendor: str,
     url: str,
     *,
     wait_for_selector: str | None = None,
-    timeout_ms: int = 20_000,
+    timeout_ms: int = 30_000,
+    headless: bool = False,
     playwright_module=None,
     store: SessionStore | None = None,
 ) -> str:
-    """Convenience wrapper: open ``url`` headless, optionally wait for a selector,
-    return the fully-rendered page HTML.
+    """Open ``url`` with the vendor's authenticated context, return the page HTML.
 
-    Returns an empty string on any internal failure so callers can detect "nothing
-    parseable" without try/except boilerplate.
+    Returns ``""`` on any internal failure so callers can check truthiness.
     """
     try:
-        with HeadlessBrowser(
+        with PlaywrightSession(
             vendor,
+            headless=headless,
             playwright_module=playwright_module,
             store=store,
             timeout_ms=timeout_ms,
@@ -93,10 +124,8 @@ def fetch_rendered_html(
                 except Exception as exc:  # noqa: BLE001
                     log.debug("wait_for_selector %s missed: %s", wait_for_selector, exc)
             return page.content() or ""
-    except NoStoredSessionError:
-        raise
-    except PlaywrightNotInstalled:
+    except (NoStoredSessionError, PlaywrightNotInstalled):
         raise
     except Exception as exc:  # noqa: BLE001
-        log.warning("headless fetch %s failed: %s", url, exc)
+        log.warning("Playwright fetch %s failed: %s", url, exc)
         return ""

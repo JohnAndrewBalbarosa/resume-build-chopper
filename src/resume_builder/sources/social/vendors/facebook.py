@@ -22,7 +22,12 @@ from typing import Iterable
 
 from ..auth import Credentials, LoginError, LoginPrompt, SessionStore, resolve_session_cookies
 from ..base import SocialVendor
-from ..headless_browser import NoStoredSessionError, fetch_rendered_html
+from ..headless_browser import (
+    NoStoredSessionError,
+    PlaywrightSession,
+    fetch_rendered_html,
+    scroll_collect,
+)
 from ..http import HttpClient
 from ..models import SocialMention, SocialPost
 
@@ -33,6 +38,41 @@ _POST_LINK_RE = re.compile(r'href="(/story\.php\?story_fbid=\d+[^"]*)"')
 _TEXT_BLOCK_RE = re.compile(r"<p>(.*?)</p>", re.IGNORECASE | re.DOTALL)
 _TAG_STRIP_RE = re.compile(r"<[^>]+>")
 _AUTHOR_RE = re.compile(r"<strong[^>]*>([^<]+)</strong>")
+
+
+def _snapshot_article(element) -> dict:
+    """Extract a stable plain-dict snapshot of a single FB article element.
+
+    The snapshot keeps everything we need (text, url, author, post_id) so the
+    Playwright page can close before parsing — avoiding stale-handle errors.
+    """
+    text = (element.inner_text() or "").strip()
+    href = ""
+    author = ""
+    try:
+        # FB renders post permalinks as anchors carrying /posts/ or /permalink/ paths.
+        anchor = element.query_selector('a[href*="/posts/"], a[href*="/permalink/"]')
+        if anchor:
+            href = anchor.get_attribute("href") or ""
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        # Author name lives in the post header strong/h-style element.
+        author_el = element.query_selector("strong, h2, h3")
+        if author_el:
+            author = (author_el.inner_text() or "").strip().splitlines()[0]
+    except Exception:  # noqa: BLE001
+        pass
+
+    if href.startswith("/"):
+        href = f"https://www.facebook.com{href}"
+    post_id = ""
+    if href:
+        post_id = href.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+    if not post_id:
+        post_id = f"render-{hash(text) & 0xFFFFFF}"
+
+    return {"post_id": post_id, "url": href, "author": author, "text": text[:1000]}
 
 
 def _parse_cookie_header(raw: str) -> dict[str, str]:
@@ -103,20 +143,16 @@ class FacebookVendor(SocialVendor):
             return []
         return list(self._parse_mentions(html))[:limit]
 
-    # ---- headless path ----
+    # ---- playwright scrape path (visible Chromium + scroll-to-load) ----
 
     def _headless_own_posts(self, handle: str, limit: int) -> list[SocialPost]:
         url = f"https://www.facebook.com/{handle}"
         try:
-            html = fetch_rendered_html(
-                "facebook",
-                url,
-                wait_for_selector="div[role='main']",
-                store=self._store,
-            )
+            articles = self._scrape_articles(url, max_scrolls=60)
         except NoStoredSessionError:
             return []
-        return list(self._parse_rendered_posts(html, profile_url=url))[:limit]
+        posts = list(self._articles_to_posts(articles, profile_url=url))
+        return posts[:limit] if limit else posts
 
     def _headless_search_mentions(
         self, full_name: str, limit: int
@@ -125,15 +161,81 @@ class FacebookVendor(SocialVendor):
 
         url = f"https://www.facebook.com/search/posts/?q={quote_plus(full_name)}"
         try:
-            html = fetch_rendered_html(
-                "facebook",
-                url,
-                wait_for_selector="div[role='main']",
-                store=self._store,
-            )
+            articles = self._scrape_articles(url, max_scrolls=30)
         except NoStoredSessionError:
             return []
-        return list(self._parse_rendered_mentions(html, query_url=url))[:limit]
+        mentions = list(self._articles_to_mentions(articles, query_url=url, full_name=full_name))
+        return mentions[:limit] if limit else mentions
+
+    def _scrape_articles(self, url: str, *, max_scrolls: int) -> list[dict]:
+        """Drive a visible Chromium to ``url``, scroll until the feed stops growing,
+        and snapshot each article into a plain dict so the page can close before parsing.
+        """
+        records: list[dict] = []
+        with PlaywrightSession(
+            "facebook", headless=False, store=self._store
+        ) as page:
+            page.goto(url, wait_until="domcontentloaded")
+            try:
+                page.wait_for_selector("div[role='main']", timeout=20_000)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("FB main feed never rendered at %s: %s", url, exc)
+                return []
+            articles = scroll_collect(
+                page,
+                "div[role='article']",
+                max_scrolls=max_scrolls,
+            )
+            log.info("FB scrape captured %d articles at %s", len(articles), url)
+            for art in articles:
+                try:
+                    records.append(_snapshot_article(art))
+                except Exception as exc:  # noqa: BLE001
+                    log.debug("article snapshot failed: %s", exc)
+        return records
+
+    @staticmethod
+    def _articles_to_posts(
+        records: list[dict], profile_url: str
+    ) -> Iterable[SocialPost]:
+        seen_ids: set[str] = set()
+        for rec in records:
+            post_id = rec["post_id"]
+            if post_id in seen_ids:
+                continue
+            if not rec["text"]:
+                continue
+            seen_ids.add(post_id)
+            yield SocialPost(
+                vendor="facebook",
+                post_id=post_id,
+                url=rec["url"] or profile_url,
+                text=rec["text"],
+            )
+
+    @staticmethod
+    def _articles_to_mentions(
+        records: list[dict], query_url: str, full_name: str
+    ) -> Iterable[SocialMention]:
+        name_lower = full_name.lower()
+        seen_ids: set[str] = set()
+        for rec in records:
+            mention_id = rec["post_id"]
+            text = rec["text"]
+            if not text or mention_id in seen_ids:
+                continue
+            # Only treat as a mention if the searched name actually appears in
+            # the post body — FB's search returns ambient noise too.
+            if name_lower not in text.lower():
+                continue
+            seen_ids.add(mention_id)
+            yield SocialMention(
+                vendor="facebook",
+                mention_id=mention_id,
+                url=rec["url"] or query_url,
+                text=text,
+                author_name=rec["author"],
+            )
 
     @staticmethod
     def _parse_rendered_posts(html: str, profile_url: str) -> Iterable[SocialPost]:

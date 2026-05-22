@@ -50,7 +50,7 @@ def test_yields_page_when_storage_state_present(tmp_path: Path):
     with HeadlessBrowser("facebook", playwright_module=fake_pw, store=store) as p:
         assert p is page
     browser.close.assert_called_once()
-    context.set_default_timeout.assert_called_once_with(20_000)
+    context.set_default_timeout.assert_called_once_with(30_000)
 
 
 def test_fetch_rendered_html_navigates_and_returns_content(tmp_path: Path):
@@ -66,7 +66,7 @@ def test_fetch_rendered_html_navigates_and_returns_content(tmp_path: Path):
     )
     assert "feed" in out
     page.goto.assert_called_once()
-    page.wait_for_selector.assert_called_once_with("div[role='main']", timeout=20_000)
+    page.wait_for_selector.assert_called_once_with("div[role='main']", timeout=30_000)
 
 
 def test_fetch_rendered_html_swallows_internal_errors(tmp_path: Path):
