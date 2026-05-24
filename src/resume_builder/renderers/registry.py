@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Callable
 
 from .base import Renderer
+from .html_renderer import HtmlRenderer
 from .json_renderer import JsonRenderer
 from .latex_renderer import LatexRenderer
 from .markdown_renderer import MarkdownRenderer
@@ -18,6 +19,7 @@ RENDERERS: dict[str, RendererFactory] = {
     "latex": lambda templates_dir: LatexRenderer(templates_dir),
     "tex": lambda templates_dir: LatexRenderer(templates_dir),
     "pdf": lambda templates_dir: PdfRenderer(templates_dir),
+    "html": lambda templates_dir: HtmlRenderer(templates_dir),
 }
 
 

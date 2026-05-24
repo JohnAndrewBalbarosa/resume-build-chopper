@@ -29,7 +29,7 @@ import os
 # Personal values come from the environment / .env (gitignored), never hardcoded.
 GH_USER = os.environ.get("RESUME_GH_USER") or "your-github-username"
 DOCS = Path(os.environ.get("RESUME_DOCS") or (ROOT / "private" / "cv.pdf"))
-FORMATS = ["latex", "md", "json", "pdf"]
+FORMATS = ["html", "latex", "md", "json", "pdf"]
 ROLES = ["cybersecurity-redteam", "cybersecurity-blueteam", "fullstack-web", "ml-engineer"]
 
 FB = DATA / "facebook.json"
