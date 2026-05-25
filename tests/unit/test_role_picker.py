@@ -22,3 +22,12 @@ def test_static_picker_missing(config_dir):
     picker = StaticRolePicker(config_dir / "roles.json")
     with pytest.raises(RoleNotFoundError):
         picker.pick("does-not-exist")
+
+
+def test_systems_compilers_role_loads(config_dir):
+    import json
+    data = json.loads((config_dir / "roles.json").read_text(encoding="utf-8"))
+    ids = {r["id"] for r in data["roles"]}
+    assert "systems-compilers" in ids
+    role = next(r for r in data["roles"] if r["id"] == "systems-compilers")
+    assert "compiler" in [k.lower() for k in role["keywords"]]
