@@ -68,6 +68,21 @@ def test_registry_resolves(templates_dir):
     assert isinstance(get_renderer("latex", templates_dir), LatexRenderer)
 
 
+def test_pdf_renders_two_frames(templates_dir):
+    from resume_builder.renderers.pdf_renderer import PdfRenderer
+    from resume_builder.models import Resume, RoleSpec, ContactInfo, ResumeProject
+    resume = Resume(
+        role=RoleSpec(id="r", label="R", keywords=[], must_have_skills=[], nice_to_have=[]),
+        contact=ContactInfo(name="Test User"),
+        summary="A summary.", skills=["Python", "C++"],
+        projects=[ResumeProject(name="Proj", description="d", tech=["Python"])],
+        experience=[], education=[],
+    )
+    pdf = PdfRenderer(templates_dir).render(resume)
+    assert pdf[:4] == b"%PDF"
+    assert len(pdf) > 800
+
+
 def test_html_is_two_column(templates_dir):
     from resume_builder.renderers.html_renderer import HtmlRenderer
     from resume_builder.models import Resume, RoleSpec, ContactInfo

@@ -58,26 +58,52 @@ class PdfRenderer(Renderer):
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.units import inch
         from reportlab.platypus import (
+            BaseDocTemplate,
+            Frame,
+            FrameBreak,
+            PageTemplate,
             Paragraph,
-            SimpleDocTemplate,
             Spacer,
         )
 
         buf = BytesIO()
-        doc = SimpleDocTemplate(
-            buf,
-            pagesize=letter,
-            leftMargin=0.55 * inch,
-            rightMargin=0.55 * inch,
-            topMargin=0.45 * inch,
-            bottomMargin=0.45 * inch,
+        pw, ph = letter
+        lm = rm = 0.55 * inch
+        tm = bm = 0.45 * inch
+        header_h = 0.9 * inch
+        gutter = 0.2 * inch
+        usable_w = pw - lm - rm
+        side_w = usable_w * 0.34
+        main_w = usable_w - side_w - gutter
+        body_top = ph - tm - header_h
+        body_h = body_top - bm
+
+        header_frame = Frame(
+            lm, ph - tm - header_h, usable_w, header_h, id="header",
+            leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0,
         )
+        side_frame = Frame(
+            lm, bm, side_w, body_h, id="side",
+            leftPadding=0, rightPadding=8, topPadding=0, bottomPadding=0,
+        )
+        main_frame = Frame(
+            lm + side_w + gutter, bm, main_w, body_h, id="main",
+            leftPadding=8, rightPadding=0, topPadding=0, bottomPadding=0,
+        )
+
+        doc = BaseDocTemplate(buf, pagesize=letter)
+        doc.addPageTemplates([
+            PageTemplate(id="two-col", frames=[header_frame, side_frame, main_frame]),
+        ])
+
         styles = getSampleStyleSheet()
         h1 = ParagraphStyle("h1", parent=styles["Heading1"], spaceAfter=2, fontSize=16)
         h2 = ParagraphStyle("h2", parent=styles["Heading2"], spaceBefore=6, spaceAfter=2, fontSize=12)
         body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=9, leading=11, spaceAfter=1)
+
         story = []
 
+        # --- HEADER frame ---
         story.append(Paragraph(resume.contact.name or "Resume", h1))
         contact_bits = [
             resume.contact.email,
@@ -92,12 +118,41 @@ class PdfRenderer(Renderer):
             story.append(Paragraph(contact_line, body))
         story.append(Paragraph(f"<i>Target role:</i> <b>{resume.role.label}</b>", body))
 
-        story.append(Paragraph("Summary", h2))
-        story.append(Paragraph(resume.summary or "", body))
+        story.append(FrameBreak())
 
+        # --- SIDEBAR frame: Skills, Certifications, Education (Education last) ---
         if resume.skills:
             story.append(Paragraph("Skills", h2))
             story.append(Paragraph(" &middot; ".join(resume.skills), body))
+
+        if resume.certifications:
+            story.append(Paragraph("Certifications", h2))
+            for c in resume.certifications:
+                line = f"<b>{c.name}</b>"
+                if c.issuer:
+                    line += f" &mdash; {c.issuer}"
+                if c.date:
+                    line += f" ({c.date})"
+                story.append(Paragraph(line, body))
+
+        # Education last in sidebar — basic supporting info.
+        if resume.education:
+            story.append(Paragraph("Education", h2))
+            for e in resume.education:
+                line = f"<b>{e.school}</b>"
+                if e.degree:
+                    line += f" &mdash; {e.degree}"
+                if e.field:
+                    line += f" in {e.field}"
+                story.append(Paragraph(line, body))
+                for n in e.notes:
+                    story.append(Paragraph(f"&bull; {n}", body))
+
+        story.append(FrameBreak())
+
+        # --- MAIN frame: Summary, Experience, Projects, Achievements ---
+        story.append(Paragraph("Summary", h2))
+        story.append(Paragraph(resume.summary or "", body))
 
         if resume.experience:
             story.append(Paragraph("Experience", h2))
@@ -125,28 +180,15 @@ class PdfRenderer(Renderer):
                     story.append(Paragraph(f"<i>Tech: {', '.join(p.tech)}</i>", body))
                 story.append(Spacer(1, 2))
 
-        if resume.certifications:
-            story.append(Paragraph("Certifications", h2))
-            for c in resume.certifications:
-                line = f"<b>{c.name}</b>"
-                if c.issuer:
-                    line += f" &mdash; {c.issuer}"
-                if c.date:
-                    line += f" ({c.date})"
+        if resume.achievements:
+            story.append(Paragraph("Achievements", h2))
+            for a in resume.achievements:
+                line = f"<b>{a.title}</b>"
+                if a.date:
+                    line += f" ({a.date})"
                 story.append(Paragraph(line, body))
-
-        # Education last — basic supporting info goes at the end of the resume.
-        if resume.education:
-            story.append(Paragraph("Education", h2))
-            for e in resume.education:
-                line = f"<b>{e.school}</b>"
-                if e.degree:
-                    line += f" &mdash; {e.degree}"
-                if e.field:
-                    line += f" in {e.field}"
-                story.append(Paragraph(line, body))
-                for n in e.notes:
-                    story.append(Paragraph(f"&bull; {n}", body))
+                if a.snippet:
+                    story.append(Paragraph(a.snippet, body))
 
         doc.build(story)
         return buf.getvalue()
