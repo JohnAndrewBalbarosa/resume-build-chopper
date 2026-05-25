@@ -18,15 +18,15 @@
   html,body{margin:0;padding:0;background:#eef0f4;color:var(--ink);}
   body{
     font-family:"Georgia","Iowan Old Style",Cambria,"Times New Roman",serif;
-    font-size:10.7pt; line-height:1.5;
+    font-size:10.7pt; line-height:1.32;
     -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
   .sheet{
     max-width:var(--maxw); margin:18px auto; background:var(--bg);
-    padding:20mm 18mm; box-shadow:0 1px 6px rgba(20,24,29,.12);
+    padding:14mm 16mm; box-shadow:0 1px 6px rgba(20,24,29,.12);
   }
   /* ---- header ---- */
-  header{border-bottom:2px solid var(--accent); padding-bottom:12px; margin-bottom:16px;}
+  header{border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:11px;}
   .name{
     font-family:"Helvetica Neue",Arial,system-ui,sans-serif;
     font-size:26pt; font-weight:700; letter-spacing:.06em;
@@ -43,17 +43,17 @@
   .contact a{color:var(--muted); text-decoration:none;}
   .contact .sep{color:var(--faint);}
   /* ---- sections ---- */
-  section{margin:0 0 15px;}
+  section{margin:0 0 9px;}
   h2{
     font-family:"Helvetica Neue",Arial,sans-serif; font-size:9.5pt;
     font-weight:700; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--accent); margin:0 0 9px; padding-bottom:4px;
+    color:var(--accent); margin:0 0 5px; padding-bottom:3px;
     border-bottom:1px solid var(--rule);
   }
-  p{margin:0 0 6px;}
+  p{margin:0 0 4px;}
   .summary{color:var(--ink);}
   /* ---- achievements (emphasis) ---- */
-  .ach{margin:0 0 9px; padding-left:15px; position:relative; break-inside:avoid;}
+  .ach{margin:0 0 5px; padding-left:15px; position:relative; break-inside:avoid;}
   .ach::before{content:"▸"; position:absolute; left:0; top:0; color:var(--accent); font-size:9pt;}
   .ach .top{display:flex; justify-content:space-between; gap:12px; align-items:baseline;}
   .ach .title{
@@ -64,9 +64,9 @@
     font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.5pt;
     color:var(--faint); white-space:nowrap; text-transform:uppercase; letter-spacing:.05em;
   }
-  .ach .detail{color:var(--muted); font-size:10pt; margin-top:1px;}
+  .ach .detail{color:var(--muted); font-size:10pt; margin-top:0;}
   /* ---- projects / experience ---- */
-  .entry{margin:0 0 11px; break-inside:avoid;}
+  .entry{margin:0 0 7px; break-inside:avoid;}
   .entry .row{display:flex; justify-content:space-between; gap:12px; align-items:baseline;}
   .entry .lead{
     font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; font-size:10.5pt;
@@ -75,16 +75,16 @@
   .entry .when{font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.5pt; color:var(--faint); white-space:nowrap;}
   .entry .tech{font-size:9pt; color:var(--accent); font-style:italic; margin:1px 0 2px;}
   .entry .desc{color:var(--muted); margin:1px 0 3px;}
-  ul.bullets{margin:2px 0 0; padding-left:16px;}
-  ul.bullets li{margin:0 0 2px; color:var(--ink);}
+  ul.bullets{margin:1px 0 0; padding-left:16px;}
+  ul.bullets li{margin:0 0 1px; color:var(--ink);}
   /* ---- education ---- */
-  .edu{margin:0 0 8px; break-inside:avoid;}
+  .edu{margin:0 0 5px; break-inside:avoid;}
   .edu .row{display:flex; justify-content:space-between; gap:12px; align-items:baseline;}
   .edu .school{font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; font-size:10.5pt;}
   .edu .degree{color:var(--muted);}
   .edu .when{font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.5pt; color:var(--faint); white-space:nowrap;}
   /* ---- skills ---- */
-  .skills{font-family:"Helvetica Neue",Arial,sans-serif; font-size:9.5pt; color:var(--ink); line-height:1.7;}
+  .skills{font-family:"Helvetica Neue",Arial,sans-serif; font-size:9.5pt; color:var(--ink); line-height:1.5;}
   .skills .chip{white-space:nowrap;}
   .skills .dot{color:var(--faint); margin:0 6px;}
   /* ---- print ---- */

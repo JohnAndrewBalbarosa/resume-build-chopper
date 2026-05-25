@@ -67,15 +67,15 @@ class PdfRenderer(Renderer):
         doc = SimpleDocTemplate(
             buf,
             pagesize=letter,
-            leftMargin=0.6 * inch,
-            rightMargin=0.6 * inch,
-            topMargin=0.5 * inch,
-            bottomMargin=0.5 * inch,
+            leftMargin=0.55 * inch,
+            rightMargin=0.55 * inch,
+            topMargin=0.45 * inch,
+            bottomMargin=0.45 * inch,
         )
         styles = getSampleStyleSheet()
-        h1 = ParagraphStyle("h1", parent=styles["Heading1"], spaceAfter=4, fontSize=16)
-        h2 = ParagraphStyle("h2", parent=styles["Heading2"], spaceBefore=10, spaceAfter=4, fontSize=12)
-        body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=9, leading=12)
+        h1 = ParagraphStyle("h1", parent=styles["Heading1"], spaceAfter=2, fontSize=16)
+        h2 = ParagraphStyle("h2", parent=styles["Heading2"], spaceBefore=6, spaceAfter=2, fontSize=12)
+        body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=9, leading=11, spaceAfter=1)
         story = []
 
         story.append(Paragraph(resume.contact.name or "Resume", h1))
@@ -108,7 +108,7 @@ class PdfRenderer(Renderer):
                 story.append(Paragraph(head, body))
                 for b in x.bullets:
                     story.append(Paragraph(f"&bull; {b}", body))
-                story.append(Spacer(1, 4))
+                story.append(Spacer(1, 2))
 
         if resume.projects:
             story.append(Paragraph("Projects", h2))
@@ -123,7 +123,7 @@ class PdfRenderer(Renderer):
                     story.append(Paragraph(f"&bull; {b}", body))
                 if p.tech:
                     story.append(Paragraph(f"<i>Tech: {', '.join(p.tech)}</i>", body))
-                story.append(Spacer(1, 4))
+                story.append(Spacer(1, 2))
 
         if resume.education:
             story.append(Paragraph("Education", h2))

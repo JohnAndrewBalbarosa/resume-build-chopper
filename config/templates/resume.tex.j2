@@ -1,10 +1,14 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[margin=0.7in]{geometry}
+\usepackage[margin=0.55in]{geometry}
 \usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
 \usepackage{enumitem}
 \titleformat{\section}{\large\bfseries}{}{0pt}{}[\titlerule]
-\setlist[itemize]{leftmargin=*,nosep,topsep=2pt}
+\titlespacing*{\section}{0pt}{6pt}{3pt}
+\setlist[itemize]{leftmargin=*,nosep,topsep=1pt}
+\setlength{\parskip}{2pt}
+\setlength{\parindent}{0pt}
+\linespread{0.98}
 \pagestyle{empty}
 
 \begin{document}
@@ -54,7 +58,7 @@
 (* if p.tech *)
 \textit{Tech: << p.tech | join(", ") | tex_escape >>}
 (* endif *)
-\\[4pt]
+\\[2pt]
 (* endfor *)
 (* endif *)
 
