@@ -66,3 +66,16 @@ def test_registry_resolves(templates_dir):
     assert isinstance(get_renderer("json", templates_dir), JsonRenderer)
     assert isinstance(get_renderer("MD", templates_dir), MarkdownRenderer)
     assert isinstance(get_renderer("latex", templates_dir), LatexRenderer)
+
+
+def test_html_is_two_column(templates_dir):
+    from resume_builder.renderers.html_renderer import HtmlRenderer
+    from resume_builder.models import Resume, RoleSpec, ContactInfo
+    resume = Resume(
+        role=RoleSpec(id="r", label="R", keywords=[], must_have_skills=[], nice_to_have=[]),
+        contact=ContactInfo(name="Test User"),
+        summary="S", skills=["Python"], projects=[], experience=[], education=[],
+    )
+    html = HtmlRenderer(templates_dir).render(resume)
+    assert "grid-template-columns" in html
+    assert 'class="sidebar"' in html and 'class="main"' in html
