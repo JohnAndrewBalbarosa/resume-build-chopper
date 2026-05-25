@@ -20,7 +20,7 @@ from .base import Extractor
 
 
 class StaticExtractor(Extractor):
-    def __init__(self, regex_patterns_path: Path, min_score: float = 1.0) -> None:
+    def __init__(self, regex_patterns_path: Path, min_score: float = 2.5) -> None:
         self._categories = self._load_categories(regex_patterns_path)
         self._min_score = min_score
 

@@ -95,3 +95,17 @@ University of Example
 
     parsed = json.loads((out_dir / "resume.json").read_text(encoding="utf-8"))
     assert parsed["role"]["id"] == "cybersecurity-blueteam"
+
+
+def test_projects_filtered_by_role_static():
+    from resume_builder.models import ResumeProject, RoleSpec
+    from resume_builder import pipeline as P
+
+    role = RoleSpec(id="ml-engineer", label="ML", keywords=["pytorch", "LLM"],
+                    must_have_skills=["python"], nice_to_have=[])
+    projects = [
+        ResumeProject(name="MusicScanIter", description="PyTorch model trainer", tech=["Python"]),
+        ResumeProject(name="Andrew-mini-compiler", description="A C++ compiler", tech=["C++"]),
+    ]
+    kept = P._filter_projects_by_role(projects, role, llm=None)
+    assert "Andrew-mini-compiler" not in [p.name for p in kept]

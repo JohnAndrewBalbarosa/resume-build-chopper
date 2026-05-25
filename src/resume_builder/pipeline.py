@@ -319,6 +319,7 @@ class Pipeline:
             self.docs.collect(inputs.docs_path) if inputs.docs_path else []
         )
         resume = self.synthesizer.build(role, repos, evidence, documents)
+        resume.projects = _filter_projects_by_role(resume.projects, role, self.llm)
         social_result = self._collect_social(inputs.social_config_path)
         if social_result is not None:
             candidates = _achievements_from_social(social_result)
