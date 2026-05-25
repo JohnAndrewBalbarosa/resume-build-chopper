@@ -176,12 +176,12 @@ class PdfRenderer(Renderer):
                 if p.url:
                     head += f' <font size=8>&lt;{p.url}&gt;</font>'
                 story.append(Paragraph(head, body))
+                if p.tech:
+                    story.append(Paragraph(f"<i>{' &middot; '.join(p.tech)}</i>", body))
                 if p.description:
                     story.append(Paragraph(p.description, body))
                 for b in p.bullets:
                     story.append(Paragraph(f"&bull; {b}", body))
-                if p.tech:
-                    story.append(Paragraph(f"<i>Tech: {', '.join(p.tech)}</i>", body))
                 story.append(Spacer(1, 2))
 
         if resume.achievements:

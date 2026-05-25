@@ -55,3 +55,31 @@ def test_extractor_archived_skipped(config_dir):
         ),
     ]
     assert extractor.extract(repos, _role()) == []
+
+def test_suggest_bullets_dedupes_and_excludes_languages():
+    repo = Repo(
+        name="proj",
+        full_name="me/proj",
+        url="https://github.com/me/proj",
+        description="A project.",
+        languages=["Python", "TypeScript"],
+    )
+    # matched has a language in two cases (Python/python) plus non-language terms.
+    matched = {"Python", "python", "TypeScript", "RAG", "LLM"}
+    bullets = StaticExtractor._suggest_bullets(repo, matched)
+    assert len(bullets) == 1
+    text = bullets[0]
+    assert text.startswith("Demonstrates: ")
+    # No duplicate description bullet.
+    assert "A project" not in text
+    # Languages excluded (already shown in the Tech line).
+    assert "Python" not in text and "TypeScript" not in text
+    # Non-language matched terms kept.
+    assert "RAG" in text and "LLM" in text
+
+
+def test_suggest_bullets_empty_when_only_languages_match():
+    repo = Repo(
+        name="p", full_name="me/p", url="u", description="d", languages=["Python"],
+    )
+    assert StaticExtractor._suggest_bullets(repo, {"Python", "python"}) == []

@@ -33,13 +33,13 @@
 
 {% for p in resume.projects %}
 ### {{ p.name }}{% if p.url %} — [{{ p.url }}]({{ p.url }}){% endif +%}
+{% if p.tech %}*{{ p.tech | join(" · ") }}*
+{% endif %}
 {% if p.description %}{{ p.description }}
 {% endif %}
 {% for b in p.bullets %}
 - {{ b }}
 {% endfor %}
-{% if p.tech %}*Tech: {{ p.tech | join(", ") }}*
-{% endif %}
 
 {% endfor %}
 {% endif %}

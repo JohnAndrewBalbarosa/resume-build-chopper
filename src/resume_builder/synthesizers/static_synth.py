@@ -28,7 +28,7 @@ from ..models import (
 from .base import Synthesizer
 
 _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
-_PHONE_RE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
+_PHONE_RE = re.compile(r"\(?\+?\d[\d\s().-]{7,}\d")
 _URL_RE = re.compile(r"https?://[^\s)\}]+")
 _SECTION_RE = re.compile(r"\\section\*?\{([^}]+)\}([^\\]*(?:\\(?!section)[^\\]*)*)", re.IGNORECASE)
 

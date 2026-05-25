@@ -111,13 +111,22 @@ class StaticExtractor(Extractor):
 
     @staticmethod
     def _suggest_bullets(repo: Repo, matched: set[str]) -> list[str]:
-        bullets: list[str] = []
-        if repo.description:
-            bullets.append(repo.description.strip().rstrip("."))
-        if matched:
-            top = ", ".join(sorted(matched)[:6])
-            bullets.append(f"Demonstrates: {top}")
-        return bullets
+        # The repo description already fills ResumeProject.description and the languages
+        # fill the Tech line, so the only non-redundant bullet is the *additional*
+        # role-relevant signal: matched terms that are not languages. De-duplicate
+        # case-insensitively so "Python" and "python" don't both appear.
+        langs = {lang.lower() for lang in repo.languages}
+        seen: set[str] = set()
+        extras: list[str] = []
+        for term in sorted(matched, key=str.lower):
+            key = term.lower()
+            if key in seen or key in langs:
+                continue
+            seen.add(key)
+            extras.append(term)
+        if not extras:
+            return []
+        return [f"Demonstrates: {', '.join(extras[:6])}"]
 
 
 def _flatten_matches(hits: list) -> list[str]:

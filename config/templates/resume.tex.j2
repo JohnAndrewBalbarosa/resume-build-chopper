@@ -80,6 +80,7 @@
 \section*{Projects}
 (* for p in resume.projects *)
 \textbf{<< p.name | tex_escape >>}(* if p.url *) --- \href{<< p.url >>}{<< p.url | tex_escape >>}(* endif *)\\
+(* if p.tech *)\textit{<< p.tech | join(", ") | tex_escape >>}\\(* endif *)
 << p.description | tex_escape >>
 (* if p.bullets *)
 \begin{itemize}
@@ -87,9 +88,6 @@
   \item << b | tex_escape >>
 (* endfor *)
 \end{itemize}
-(* endif *)
-(* if p.tech *)
-\textit{Tech: << p.tech | join(", ") | tex_escape >>}
 (* endif *)
 \\[2pt]
 (* endfor *)
