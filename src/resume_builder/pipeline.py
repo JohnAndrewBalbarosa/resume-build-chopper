@@ -248,7 +248,31 @@ def _filter_projects_with_ai(
     role: RoleSpec,
     llm: LLMProvider,
 ) -> list[ResumeProject]:
-    raise NotImplementedError  # implemented in Task 3
+    listing = "\n".join(
+        f"[{i}] {p.name} — tech: {', '.join(p.tech)}\n    {(p.description or '').strip()[:400]}"
+        for i, p in enumerate(projects)
+    )
+    prompt = (
+        f"TARGET ROLE: {role.label}\n"
+        f"Role keywords: {', '.join(role.keywords)}\n"
+        f"Must-have skills: {', '.join(role.must_have_skills)}\n\n"
+        f"Candidate projects:\n{listing}\n\n"
+        "Return a verdict for every index."
+    )
+    verdicts = llm.structured(
+        prompt, schema=_ProjectVerdicts, system=_PROJECT_SYSTEM, max_tokens=2048
+    )
+    kept: list[ResumeProject] = []
+    for v in verdicts.items:
+        if not v.relevant or not (0 <= v.index < len(projects)):
+            continue
+        src = projects[v.index]
+        kept.append(
+            src.model_copy(update={"description": v.focused_description.strip()})
+            if v.focused_description and v.focused_description.strip()
+            else src
+        )
+    return kept
 
 
 @dataclass
