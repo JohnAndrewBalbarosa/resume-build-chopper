@@ -68,7 +68,7 @@ def test_registry_resolves(templates_dir):
     assert isinstance(get_renderer("latex", templates_dir), LatexRenderer)
 
 
-def test_pdf_renders_two_frames(templates_dir):
+def test_pdf_renders_single_column_smoke(templates_dir):
     from resume_builder.renderers.pdf_renderer import PdfRenderer
     from resume_builder.models import Resume, RoleSpec, ContactInfo, ResumeProject
     resume = Resume(
@@ -83,7 +83,7 @@ def test_pdf_renders_two_frames(templates_dir):
     assert len(pdf) > 800
 
 
-def test_latex_uses_paracol(templates_dir):
+def test_latex_is_single_column(templates_dir):
     from resume_builder.renderers.latex_renderer import LatexRenderer
     from resume_builder.models import Resume, RoleSpec, ContactInfo
     resume = Resume(
@@ -92,10 +92,13 @@ def test_latex_uses_paracol(templates_dir):
         projects=[], experience=[], education=[],
     )
     tex = LatexRenderer(templates_dir).render(resume)
-    assert "paracol" in tex
+    # Single-column vertical flow; section rule (titlerule) scopes each heading.
+    assert "paracol" not in tex
+    assert "\\titlerule" in tex
+    assert "\\section*{Summary}" in tex
 
 
-def test_html_is_two_column(templates_dir):
+def test_html_is_single_column_with_section_dividers(templates_dir):
     from resume_builder.renderers.html_renderer import HtmlRenderer
     from resume_builder.models import Resume, RoleSpec, ContactInfo
     resume = Resume(
@@ -104,5 +107,7 @@ def test_html_is_two_column(templates_dir):
         summary="S", skills=["Python"], projects=[], experience=[], education=[],
     )
     html = HtmlRenderer(templates_dir).render(resume)
-    assert "grid-template-columns" in html
-    assert 'class="sidebar"' in html and 'class="main"' in html
+    # No two-column grid; sections are scoped by a horizontal divider (border-top).
+    assert "grid-template-columns" not in html
+    assert 'class="sidebar"' not in html and 'class="main"' not in html
+    assert "border-top:1px solid var(--rule)" in html

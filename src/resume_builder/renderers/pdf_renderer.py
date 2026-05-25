@@ -54,60 +54,51 @@ class PdfRenderer(Renderer):
     def _render_reportlab(resume: Resume) -> bytes:
         from io import BytesIO
 
+        from reportlab.lib.colors import HexColor
         from reportlab.lib.pagesizes import letter
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.units import inch
         from reportlab.platypus import (
-            BaseDocTemplate,
-            Frame,
-            FrameBreak,
-            PageTemplate,
+            HRFlowable,
             Paragraph,
+            SimpleDocTemplate,
             Spacer,
         )
 
+        accent = HexColor("#243b6b")
+        rule = HexColor("#c7ccd6")
+
         buf = BytesIO()
-        pw, ph = letter
-        lm = rm = 0.55 * inch
-        tm = bm = 0.45 * inch
-        header_h = 0.9 * inch
-        gutter = 0.2 * inch
-        usable_w = pw - lm - rm
-        side_w = usable_w * 0.34
-        main_w = usable_w - side_w - gutter
-        body_top = ph - tm - header_h
-        body_h = body_top - bm
-
-        header_frame = Frame(
-            lm, ph - tm - header_h, usable_w, header_h, id="header",
-            leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0,
+        doc = SimpleDocTemplate(
+            buf,
+            pagesize=letter,
+            leftMargin=0.6 * inch,
+            rightMargin=0.6 * inch,
+            topMargin=0.5 * inch,
+            bottomMargin=0.5 * inch,
         )
-        side_frame = Frame(
-            lm, bm, side_w, body_h, id="side",
-            leftPadding=0, rightPadding=8, topPadding=0, bottomPadding=0,
-        )
-        main_frame = Frame(
-            lm + side_w + gutter, bm, main_w, body_h, id="main",
-            leftPadding=8, rightPadding=0, topPadding=0, bottomPadding=0,
-        )
-
-        doc = BaseDocTemplate(buf, pagesize=letter)
-        doc.addPageTemplates([
-            PageTemplate(id="two-col", frames=[header_frame, side_frame, main_frame]),
-        ])
-        # Known limitation: this is a single-page two-column template. If sidebar
-        # content (Skills + Certifications + Education) overflows side_frame it spills
-        # into main_frame rather than a new page. Resume content is expected to fit one
-        # page; multi-page two-column continuation is intentionally out of scope.
-
         styles = getSampleStyleSheet()
-        h1 = ParagraphStyle("h1", parent=styles["Heading1"], spaceAfter=2, fontSize=16)
-        h2 = ParagraphStyle("h2", parent=styles["Heading2"], spaceBefore=6, spaceAfter=2, fontSize=12)
-        body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=9, leading=11, spaceAfter=1)
+        h1 = ParagraphStyle("h1", parent=styles["Heading1"], spaceAfter=2, fontSize=17)
+        h2 = ParagraphStyle(
+            "h2", parent=styles["Heading2"], spaceBefore=0, spaceAfter=3,
+            fontSize=11, textColor=accent,
+        )
+        body = ParagraphStyle("body", parent=styles["BodyText"], fontSize=9, leading=12, spaceAfter=1)
 
-        story = []
+        story: list = []
+        state = {"first": True}
 
-        # --- HEADER frame ---
+        def section(title: str) -> None:
+            # Simple vertical flow: a horizontal rule scopes each section. The first
+            # section sits directly under the header rule, so it gets no extra divider.
+            if state["first"]:
+                state["first"] = False
+            else:
+                story.append(Spacer(1, 5))
+                story.append(HRFlowable(width="100%", thickness=0.6, color=rule, spaceAfter=4))
+            story.append(Paragraph(title, h2))
+
+        # --- header ---
         story.append(Paragraph(resume.contact.name or "Resume", h1))
         contact_bits = [
             resume.contact.email,
@@ -120,46 +111,20 @@ class PdfRenderer(Renderer):
         contact_line = " &middot; ".join(b for b in contact_bits if b)
         if contact_line:
             story.append(Paragraph(contact_line, body))
-        story.append(Paragraph(f"<i>Target role:</i> <b>{resume.role.label}</b>", body))
+        if resume.role and resume.role.label:
+            story.append(Paragraph(f"<i>{resume.role.label}</i>", body))
+        story.append(HRFlowable(width="100%", thickness=1.2, color=accent, spaceBefore=3, spaceAfter=4))
 
-        story.append(FrameBreak())
+        if resume.summary:
+            section("Summary")
+            story.append(Paragraph(resume.summary, body))
 
-        # --- SIDEBAR frame: Skills, Certifications, Education (Education last) ---
         if resume.skills:
-            story.append(Paragraph("Skills", h2))
+            section("Skills")
             story.append(Paragraph(" &middot; ".join(resume.skills), body))
 
-        if resume.certifications:
-            story.append(Paragraph("Certifications", h2))
-            for c in resume.certifications:
-                line = f"<b>{c.name}</b>"
-                if c.issuer:
-                    line += f" &mdash; {c.issuer}"
-                if c.date:
-                    line += f" ({c.date})"
-                story.append(Paragraph(line, body))
-
-        # Education last in sidebar — basic supporting info.
-        if resume.education:
-            story.append(Paragraph("Education", h2))
-            for e in resume.education:
-                line = f"<b>{e.school}</b>"
-                if e.degree:
-                    line += f" &mdash; {e.degree}"
-                if e.field:
-                    line += f" in {e.field}"
-                story.append(Paragraph(line, body))
-                for n in e.notes:
-                    story.append(Paragraph(f"&bull; {n}", body))
-
-        story.append(FrameBreak())
-
-        # --- MAIN frame: Summary, Experience, Projects, Achievements ---
-        story.append(Paragraph("Summary", h2))
-        story.append(Paragraph(resume.summary or "", body))
-
         if resume.experience:
-            story.append(Paragraph("Experience", h2))
+            section("Experience")
             for x in resume.experience:
                 head = f"<b>{x.role}</b> &mdash; {x.company}"
                 if x.start or x.end:
@@ -170,7 +135,7 @@ class PdfRenderer(Renderer):
                 story.append(Spacer(1, 2))
 
         if resume.projects:
-            story.append(Paragraph("Projects", h2))
+            section("Projects")
             for p in resume.projects:
                 head = f"<b>{p.name}</b>"
                 if p.url:
@@ -185,7 +150,7 @@ class PdfRenderer(Renderer):
                 story.append(Spacer(1, 2))
 
         if resume.achievements:
-            story.append(Paragraph("Achievements", h2))
+            section("Achievements")
             for a in resume.achievements:
                 line = f"<b>{a.title}</b>"
                 if a.date:
@@ -193,6 +158,29 @@ class PdfRenderer(Renderer):
                 story.append(Paragraph(line, body))
                 if a.snippet:
                     story.append(Paragraph(a.snippet, body))
+
+        if resume.certifications:
+            section("Certifications")
+            for c in resume.certifications:
+                line = f"<b>{c.name}</b>"
+                if c.issuer:
+                    line += f" &mdash; {c.issuer}"
+                if c.date:
+                    line += f" ({c.date})"
+                story.append(Paragraph(line, body))
+
+        # Education last — basic supporting info at the bottom of the resume.
+        if resume.education:
+            section("Education")
+            for e in resume.education:
+                line = f"<b>{e.school}</b>"
+                if e.degree:
+                    line += f" &mdash; {e.degree}"
+                if e.field:
+                    line += f" in {e.field}"
+                story.append(Paragraph(line, body))
+                for n in e.notes:
+                    story.append(Paragraph(f"&bull; {n}", body))
 
         doc.build(story)
         return buf.getvalue()

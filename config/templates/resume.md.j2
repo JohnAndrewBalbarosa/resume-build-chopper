@@ -5,17 +5,23 @@
 
 > Target role: **{{ resume.role.label }}**
 
+---
+
 ## Summary
 
 {{ resume.summary }}
 
 {% if resume.skills %}
+---
+
 ## Skills
 
 {{ resume.skills | join(" · ") }}
 
 {% endif %}
 {% if resume.experience %}
+---
+
 ## Experience
 
 {% for x in resume.experience %}
@@ -29,6 +35,8 @@
 {% endfor %}
 {% endif %}
 {% if resume.projects %}
+---
+
 ## Projects
 
 {% for p in resume.projects %}
@@ -44,6 +52,8 @@
 {% endfor %}
 {% endif %}
 {% if resume.achievements %}
+---
+
 ## Achievements
 
 {% for a in resume.achievements %}
@@ -52,13 +62,18 @@
 
 {% endif %}
 {% if resume.certifications %}
+---
+
 ## Certifications
 
 {% for c in resume.certifications %}
 - **{{ c.name }}**{% if c.issuer %} — {{ c.issuer }}{% endif %}{% if c.date %} ({{ c.date }}){% endif +%}
 {% endfor %}
+
 {% endif %}
 {% if resume.education %}
+---
+
 ## Education
 
 {% for e in resume.education %}
