@@ -181,11 +181,14 @@ class FacebookVendor(SocialVendor):
             "facebook", headless=False, store=self._store
         ) as page:
             page.goto(url, wait_until="domcontentloaded")
+            # Wait for real posts to render rather than div[role='main']: FB ships a
+            # hidden placeholder main that never becomes visible, so waiting on it
+            # times out even when the feed is fine. On timeout we continue best-effort
+            # and let scroll_collect return whatever (possibly nothing) is present.
             try:
-                page.wait_for_selector("div[role='main']", timeout=20_000)
+                page.wait_for_selector(_POST_ARTICLE_SELECTOR, timeout=20_000)
             except Exception as exc:  # noqa: BLE001
-                log.warning("FB main feed never rendered at %s: %s", url, exc)
-                return []
+                log.warning("FB posts didn't render at %s (continuing best-effort): %s", url, exc)
             articles = scroll_collect(
                 page,
                 _POST_ARTICLE_SELECTOR,
