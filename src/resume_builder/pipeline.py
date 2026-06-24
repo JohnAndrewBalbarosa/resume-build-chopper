@@ -18,6 +18,7 @@ from .extractors import AIExtractor, Extractor, StaticExtractor
 from .llm import LLMProvider, get_provider
 from .llm.null_provider import NullProvider
 from .models import Mode, RawDocument, Repo, Resume, ResumeAchievement, ResumeProject, RoleSpec
+from .principles import HARVARD_PRINCIPLES
 from .renderers import get_renderer
 from .role import AIRolePicker, RolePicker, StaticRolePicker
 from .sources import DocumentSource, GitHubSource
@@ -94,8 +95,8 @@ _ACHIEVEMENT_SYSTEM = (
     "influencer/gaming features, generic meetups, club initiations, and administrative thesis "
     "chores are NOT role achievements. When kept, rewrite focused_snippet to contain only the "
     "portion that speaks to the target role; strip promotional fluff. Be ruthless: if it does not "
-    "clearly belong on a resume for THIS role, mark it not relevant."
-)
+    "clearly belong on a resume for THIS role, mark it not relevant.\n\n"
+) + HARVARD_PRINCIPLES
 
 
 def _role_terms(role: RoleSpec) -> list[str]:
@@ -211,8 +212,8 @@ _PROJECT_SYSTEM = (
     "compiler is not a machine-learning project and a static website is not a security "
     "project — judge by what the project actually is, not by which languages it lists. "
     "When kept, rewrite focused_description to emphasize the role-relevant angle. If it "
-    "does not clearly belong on a resume for THIS role, mark it not relevant."
-)
+    "does not clearly belong on a resume for THIS role, mark it not relevant.\n\n"
+) + HARVARD_PRINCIPLES
 
 
 def _filter_projects_by_role(

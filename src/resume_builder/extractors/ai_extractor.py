@@ -10,14 +10,15 @@ from pydantic import BaseModel, Field
 
 from ..llm import LLMProvider
 from ..models import Evidence, Repo, RoleSpec
+from ..principles import HARVARD_PRINCIPLES
 from .base import Extractor
 
 _MAX_README_CHARS = 1500
 _SYSTEM = (
     "You are a resume strategist. You filter a candidate's GitHub repos for relevance "
     "to a target role. Be ruthless — only include repos that show real, role-relevant work. "
-    "For each kept repo, write 1–3 short impact-focused bullets that could appear on a resume."
-)
+    "For each kept repo, write 1–3 short impact-focused bullets that could appear on a resume.\n\n"
+) + HARVARD_PRINCIPLES
 
 
 class _AIEvidenceList(BaseModel):

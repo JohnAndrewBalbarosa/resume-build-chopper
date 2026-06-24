@@ -21,6 +21,7 @@ from ..models import (
     Resume,
     RoleSpec,
 )
+from ..principles import HARVARD_PRINCIPLES
 from .base import Synthesizer
 from .static_synth import StaticSynthesizer
 
@@ -29,8 +30,8 @@ _SYSTEM = (
     "You are a top-tier resume writer. Produce a complete, ATS-friendly resume tailored to the "
     "target role. Use impact-focused, metric-bearing bullets where possible. Include only "
     "experience/projects that are real (present in the provided materials). Skills list should "
-    "be ordered by role-relevance. Be concise — no fluff."
-)
+    "be ordered by role-relevance. Be concise — no fluff.\n\n"
+) + HARVARD_PRINCIPLES
 
 
 class AISynthesizer(Synthesizer):
