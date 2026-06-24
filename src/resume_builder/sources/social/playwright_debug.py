@@ -87,10 +87,13 @@ def highlight_selector(
             """
             ({ selector, color, ms, label }) => {
               const nodes = Array.from(document.querySelectorAll(selector)).slice(0, 12);
-              // Bring the focused element to the middle of the viewport once, so the
-              // user sees it centered instead of clipped at an edge while scrolling.
-              if (nodes[0]) {
-                nodes[0].scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+              // Center the LAST (newest, bottom-most) match — never the first. Centering
+              // the top element would yank the viewport back up every pass and fight the
+              // downward scroll, trapping collection on the same card. Following the newest
+              // element keeps the highlight centered AND advances the feed downward.
+              const focus = nodes[nodes.length - 1];
+              if (focus) {
+                focus.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
               }
               for (const node of nodes) {
                 const previous = {
