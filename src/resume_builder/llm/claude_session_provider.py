@@ -99,6 +99,8 @@ def _infer_stage(system: str) -> str:
         return "role-picker"
     if "filter" in s and "github" in s:
         return "extractor"
+    if "resume review orchestrator" in s:
+        return "resume-review"
     if "resume writer" in s:
         return "synth"
     return "llm-call"

@@ -16,6 +16,8 @@ import logging
 import time
 from dataclasses import dataclass
 
+from .playwright_debug import highlight_selector, launch_options, visual_debug_from_env
+
 log = logging.getLogger(__name__)
 
 
@@ -112,26 +114,50 @@ def open_login_window(
     if cfg is None:
         raise RuntimeError(f"No login config for vendor: {vendor}")
 
+    visual_debug = visual_debug_from_env()
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(**launch_options(False, visual_debug))
         context = browser.new_context()
         page = context.new_page()
         page.goto(cfg.url)
+        highlight_selector(page, "body", label=f"{vendor} login page", debug=visual_debug)
 
         if prefill_username and cfg.username_selector:
             try:
+                highlight_selector(
+                    page,
+                    cfg.username_selector,
+                    label=f"{vendor} username field",
+                    debug=visual_debug,
+                )
                 page.wait_for_selector(cfg.username_selector, timeout=10_000)
+                highlight_selector(
+                    page,
+                    cfg.username_selector,
+                    label=f"{vendor} username fill",
+                    debug=visual_debug,
+                )
                 page.fill(cfg.username_selector, prefill_username)
             except Exception as exc:  # noqa: BLE001
                 log.debug("prefill skipped (selector %s not ready): %s", cfg.username_selector, exc)
 
         notified_twofa = False
+        highlighted_success = False
         deadline = time.monotonic() + timeout_seconds
         while time.monotonic() < deadline:
             cookies = _jar_to_dict(context.cookies())
+            success_selector_present = _selector_present(page, cfg.success_selector)
+            if success_selector_present and not highlighted_success:
+                highlighted_success = True
+                highlight_selector(
+                    page,
+                    cfg.success_selector,
+                    label=f"{vendor} signed-in marker",
+                    debug=visual_debug,
+                )
             if (
                 cfg.success_cookie in cookies
-                and _selector_present(page, cfg.success_selector)
+                and success_selector_present
                 and _url_matches(page, cfg.success_url_contains)
             ):
                 time.sleep(settle_seconds)
@@ -147,6 +173,12 @@ def open_login_window(
                 and _selector_present(page, cfg.twofa_selector)
             ):
                 notified_twofa = True
+                highlight_selector(
+                    page,
+                    cfg.twofa_selector,
+                    label=f"{vendor} 2fa field",
+                    debug=visual_debug,
+                )
                 try:
                     on_twofa_detected(vendor)
                 except Exception:  # noqa: BLE001 - never let a CLI callback derail login

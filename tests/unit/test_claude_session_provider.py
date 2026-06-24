@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import json
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -66,3 +65,17 @@ def test_call_counter_persists_across_provider_instances(tmp_path: Path):
     p2.complete("prompt two")
     files = sorted((tmp_path / "prompts").iterdir())
     assert [f.name[:2] for f in files] == ["01", "02"]
+
+
+def test_resume_review_stage_name(tmp_path: Path):
+    stream_in = io.StringIO("# Critical Issues\n- x\n===END===\n")
+    stream_out = io.StringIO()
+    provider = ClaudeSessionProvider(
+        session_dir=tmp_path, stream_in=stream_in, stream_out=stream_out
+    )
+
+    provider.complete("resume text", system="You are a Resume Review Orchestrator.")
+
+    prompts = list((tmp_path / "prompts").iterdir())
+    assert len(prompts) == 1
+    assert "resume-review" in prompts[0].name

@@ -36,6 +36,8 @@ from .sources.social.browser_login import (
     open_login_window,
 )
 from .sources.social.browser_cookies import import_cookies_report
+from .sources.document import DocumentSource
+from .review_orchestrator import review_resume_text
 
 app = typer.Typer(help="GitHub-aware role-targeted resume builder.", no_args_is_help=True)
 
@@ -110,6 +112,32 @@ def build(
     typer.echo(f"Projects included: {len(result.resume.projects)}")
     for path in result.output_paths:
         typer.echo(f"  -> {path}")
+
+
+@app.command()
+def review(
+    docs: Path = typer.Option(..., "--docs", help="Resume file or folder to review."),
+    llm_provider: str | None = typer.Option(
+        None,
+        "--llm-provider",
+        help="LLM provider for findings-only review: anthropic | openai | claude-session.",
+    ),
+    output: Path | None = typer.Option(None, "--output", help="Optional file for review output."),
+) -> None:
+    """Review a resume using the findings-only Resume Review Orchestrator prompt."""
+    documents = DocumentSource().collect(docs)
+    resume_text = "\n\n".join(d.text for d in documents if d.text.strip())
+    if not resume_text.strip():
+        raise typer.BadParameter("No readable resume text found in --docs.")
+
+    llm = get_provider(llm_provider)
+    findings = review_resume_text(llm, resume_text)
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(findings + "\n", encoding="utf-8")
+        typer.echo(f"Wrote review findings to {output}")
+        return
+    typer.echo(findings)
 
 
 @app.command("list-vendors")
