@@ -55,14 +55,17 @@ el => {
 }
 """
 
-# A real post permalink, never a comment permalink (comment links carry comment_id).
-# Empty string means this article has no post link of its own — i.e. it is a comment.
+# Classify an article by its permalinks. A clean post permalink (without comment_id)
+# marks a real post. Only when the article has a comment permalink AND no post
+# permalink do we treat it as a comment — articles with no recognizable links are
+# kept as posts rather than dropped, so genuine posts aren't lost to a strict filter.
 _POST_HREF_JS = """
 el => {
   const links = Array.from(el.querySelectorAll(
     'a[href*="/posts/"], a[href*="/permalink/"], a[href*="story_fbid"]'));
   const post = links.find(a => !a.href.includes('comment_id'));
-  return post ? post.href : '';
+  const hasComment = links.some(a => a.href.includes('comment_id'));
+  return { href: post ? post.href : '', isComment: !post && hasComment };
 }
 """
 
@@ -82,13 +85,13 @@ def _snapshot_article(element) -> dict:
         text = (element.inner_text() or "").strip()
 
     href = ""
+    is_comment = False
     try:
-        href = element.evaluate(_POST_HREF_JS) or ""
+        info = element.evaluate(_POST_HREF_JS) or {}
+        href = info.get("href") or ""
+        is_comment = bool(info.get("isComment"))
     except Exception:  # noqa: BLE001
-        href = ""
-
-    # No post link of its own → this article is a comment; caller skips it.
-    is_comment = not href
+        pass
 
     author = ""
     try:
