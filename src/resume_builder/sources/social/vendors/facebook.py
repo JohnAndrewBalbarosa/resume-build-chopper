@@ -364,27 +364,6 @@ class FacebookVendor(SocialVendor):
         return records
 
     @staticmethod
-    def _articles_to_posts(
-        records: list[dict], profile_url: str
-    ) -> Iterable[SocialPost]:
-        seen_ids: set[str] = set()
-        for rec in records:
-            if rec.get("is_comment"):
-                continue
-            post_id = rec["post_id"]
-            if post_id in seen_ids:
-                continue
-            if not rec["text"]:
-                continue
-            seen_ids.add(post_id)
-            yield SocialPost(
-                vendor="facebook",
-                post_id=post_id,
-                url=rec["url"] or profile_url,
-                text=rec["text"],
-            )
-
-    @staticmethod
     def _articles_to_mentions(
         records: list[dict], query_url: str, full_name: str
     ) -> Iterable[SocialMention]:
