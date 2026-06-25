@@ -8,7 +8,9 @@ Routes:
 
 from __future__ import annotations
 
+import asyncio
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 from typing import Annotated
@@ -22,24 +24,45 @@ from ..config import get_settings
 from ..models import Mode
 from ..pipeline import BuildInputs, Pipeline
 from ..role import StaticRolePicker
+from .mock_data import PROTOTYPE_DATA
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 app = FastAPI(title="resume-build-chopper")
 
 _TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+_STATIC_DIR = Path(__file__).resolve().parent / "static"
 _OUTPUT_ROOT = Path(tempfile.gettempdir()) / "resume-build-chopper-out"
 _OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
+app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 app.mount("/files", StaticFiles(directory=str(_OUTPUT_ROOT)), name="files")
 
 
 @app.get("/", response_class=HTMLResponse)
+def prototype(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request,
+        "prototype.html",
+        {"data": PROTOTYPE_DATA},
+    )
+
+
+@app.get("/prototype", response_class=HTMLResponse)
+def prototype_alias(request: Request) -> HTMLResponse:
+    return prototype(request)
+
+
+@app.get("/build-form", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
     settings = get_settings()
     roles = StaticRolePicker(settings.roles_path).list_available()
     return templates.TemplateResponse(
+        request,
         "index.html",
-        {"request": request, "roles": roles},
+        {"roles": roles},
     )
 
 
@@ -57,8 +80,9 @@ async def build_view(
     selection = role_prompt if mode_enum == Mode.AI else role
     if not selection:
         return templates.TemplateResponse(
+            request,
             "result.html",
-            {"request": request, "error": "Role selection is required.", "files": []},
+            {"error": "Role selection is required.", "files": []},
             status_code=400,
         )
 
@@ -86,8 +110,9 @@ async def build_view(
         )
     except Exception as exc:
         return templates.TemplateResponse(
+            request,
             "result.html",
-            {"request": request, "error": str(exc), "files": []},
+            {"error": str(exc), "files": []},
             status_code=500,
         )
 
@@ -96,9 +121,9 @@ async def build_view(
         for p in result.output_paths
     ]
     return templates.TemplateResponse(
+        request,
         "result.html",
         {
-            "request": request,
             "files": files,
             "resume": result.resume,
             "error": None,

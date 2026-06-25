@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareerLens AI Prototype</title>
+  <link rel="stylesheet" href="/static/prototype.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">CL</div>
+      <span>CareerLens AI</span>
+    </div>
+    <nav class="nav" aria-label="Prototype navigation">
+      <a class="active" href="#dashboard">Dashboard</a>
+      <a href="#sources">Sources</a>
+      <a href="#knowledge">Knowledge Graph</a>
+      <a href="#resume">Resume Studio</a>
+      <a href="#advisor">CDO Advisor</a>
+    </nav>
+    <div class="sidebar-note">
+      Student profile, resume readiness, skill gaps, and advisor queue in one workspace.
+    </div>
+  </aside>
+
+  <main class="main" id="dashboard">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Career intelligence dashboard</h1>
+        <p class="subtitle">
+          Reconstruct student achievements from career signals, then generate targeted
+          resumes and advisor-ready readiness summaries.
+        </p>
+      </div>
+      <div class="actions">
+        <button class="btn">Import sources</button>
+        <button class="btn primary">Generate resume</button>
+      </div>
+    </div>
+
+    <section class="hero-grid">
+      <div class="overview">
+        <div class="profile-row">
+          <div>
+            <p class="eyebrow">Student profile</p>
+            <h2 class="student-name">{{ data.student.name }}</h2>
+            <p class="profile-meta">
+              {{ data.student.program }} · {{ data.student.school }}<br>
+              Target: {{ data.student.target_role }}
+            </p>
+          </div>
+          <div class="score" aria-label="Resume readiness score {{ data.student.readiness_score }} percent">
+            <div>
+              <strong>{{ data.student.readiness_score }}%</strong>
+              <span>ready</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrics" aria-label="Profile metrics">
+          <div class="metric">
+            <strong>{{ data.sources | sum(attribute="count") }}</strong>
+            <span>career signals found</span>
+          </div>
+          <div class="metric">
+            <strong>{{ data.career_nodes | length }}</strong>
+            <span>knowledge graph nodes</span>
+          </div>
+          <div class="metric">
+            <strong>{{ data.recommendations | length }}</strong>
+            <span>next actions</span>
+          </div>
+        </div>
+      </div>
+
+      <figure class="concept" aria-label="CareerLens AI concept visual">
+        <img src="/static/careerlens-concept.png" alt="CareerLens AI dashboard concept visual">
+      </figure>
+    </section>
+
+    <section class="section-grid" id="sources">
+      <div class="section">
+        <div class="section-header">
+          <h2>Imported career sources</h2>
+          <span class="section-label">Collection layer</span>
+        </div>
+        <div class="source-list">
+          {% for source in data.sources %}
+          <article class="row-item">
+            <div>
+              <h3>{{ source.name }}</h3>
+              <p>{{ source.signal }}</p>
+            </div>
+            <span class="pill green">{{ source.status }} · {{ source.count }}</span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section" id="knowledge">
+        <div class="section-header">
+          <h2>Career knowledge graph</h2>
+          <span class="section-label">Extraction layer</span>
+        </div>
+        <div class="graph">
+          <div class="graph-center">{{ data.student.name }} professional profile</div>
+          {% for node in data.career_nodes %}
+          <article class="row-item">
+            <div>
+              <h3>{{ node.label }}</h3>
+              <p>{{ node.type }}</p>
+            </div>
+            <span class="confidence">{{ node.confidence }}%</span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace" id="resume">
+      <div class="resume-preview" aria-label="Resume preview">
+        <header>
+          <h2>{{ data.student.name }}</h2>
+          <p>{{ data.student.resume_version }} · {{ data.student.target_role }}</p>
+        </header>
+        <h3>Summary</h3>
+        <p>
+          Computer Science student focused on full-stack product development,
+          hackathon execution, and campus technology leadership.
+        </p>
+        <h3>Selected Projects</h3>
+        <ul>
+          <li>Built a campus event platform using React, FastAPI, and PostgreSQL.</li>
+          <li>Created a repository-backed resume builder that filters projects by target role.</li>
+          <li>Led a student organization workflow tool from prototype to pilot release.</li>
+        </ul>
+        <h3>Skills</h3>
+        <p>Python, JavaScript, React, FastAPI, PostgreSQL, GitHub Actions, UI prototyping.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Resume sections</h2>
+          <span class="section-label">ATS draft status</span>
+        </div>
+        <div class="resume-list">
+          {% for section in data.resume_sections %}
+          <article class="row-item">
+            <div>
+              <h3>{{ section.name }}</h3>
+              <p>{{ section.detail }}</p>
+            </div>
+            <span class="pill {% if section.status == 'Ready' or section.status == 'Strong' %}green{% else %}gold{% endif %}">
+              {{ section.status }}
+            </span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section-grid">
+      <div class="section">
+        <div class="section-header">
+          <h2>Skill gap recommendations</h2>
+          <span class="section-label">Career recommendation engine</span>
+        </div>
+        <div class="recommendation-list">
+          {% for item in data.recommendations %}
+          <article class="row-item">
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.detail }}</p>
+            </div>
+            <span class="pill {% if item.priority == 'High' %}red{% else %}gold{% endif %}">
+              {{ item.priority }}
+            </span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Prototype controls</h2>
+          <span class="section-label">Workspace</span>
+        </div>
+        <div class="source-list">
+          <article class="row-item">
+            <div>
+              <h3>Target output</h3>
+              <p>Switch between industry-specific, ATS-friendly, and portfolio summaries.</p>
+            </div>
+            <select aria-label="Target output">
+              <option>ATS resume</option>
+              <option>Portfolio summary</option>
+              <option>Interview prep</option>
+            </select>
+          </article>
+          <article class="row-item">
+            <div>
+              <h3>Advisor mode</h3>
+              <p>Show queue insights for Career Development Office staff.</p>
+            </div>
+            <button class="btn">Open</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cdo-band" id="advisor">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Career Development Office</p>
+          <h2>Advisor snapshot for {{ data.cdo.advisor }}</h2>
+        </div>
+        <span class="pill">Cohort data</span>
+      </div>
+      <p>{{ data.cdo.insight }}</p>
+      <div class="cdo-grid">
+        <div class="cdo-stat">
+          <strong>{{ data.cdo.queue }}</strong>
+          <span>students in queue</span>
+        </div>
+        <div class="cdo-stat">
+          <strong>{{ data.cdo.ready }}</strong>
+          <span>resume-ready</span>
+        </div>
+        <div class="cdo-stat">
+          <strong>{{ data.cdo.needs_review }}</strong>
+          <span>need review</span>
+        </div>
+        <div class="cdo-stat">
+          <strong>{{ data.cdo.at_risk }}</strong>
+          <span>at risk</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
