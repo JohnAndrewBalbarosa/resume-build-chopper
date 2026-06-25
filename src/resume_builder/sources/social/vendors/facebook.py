@@ -87,6 +87,63 @@ el => {
 """
 
 
+# Modern FB profile timelines DON'T wrap posts in role="article" — only comments are
+# articles (verified live: every role="article" was a comment or an empty shell, and
+# real captions lived in plain divs). So we detect posts by their permalink/timestamp
+# anchor instead: it carries the __cft__ token plus a post id. Each post is keyed by
+# that id (album pcb id, pfbid, story_fbid, or /posts/<id>), we climb to the post
+# "unit" (last ancestor holding exactly one post id — this collapses album photos that
+# each carry their own fbid), and read the caption from the longest div[dir="auto"]
+# block inside, skipping comment subtrees.
+_EXTRACT_OWN_POSTS_JS = r"""
+() => {
+  const postId = (href) => {
+    href = href || '';
+    let m;
+    if ((m = href.match(/set=pcb\.(\d+)/))) return 'pcb' + m[1];
+    if ((m = href.match(/story_fbid=(\d+)/))) return 'sf' + m[1];
+    if ((m = href.match(/\/posts\/(pfbid\w+|\d+)/))) return 'po' + m[1];
+    if ((m = href.match(/\/permalink\/(\d+)/))) return 'pl' + m[1];
+    return null;  // bare photo fbid / profile / friend links are not post markers
+  };
+  const idsIn = (el) => {
+    const s = new Set();
+    el.querySelectorAll('a[href*="__cft__"]').forEach(a => {
+      const id = postId(a.getAttribute('href')); if (id) s.add(id);
+    });
+    return s;
+  };
+  const anchors = Array.from(document.querySelectorAll('a[href*="__cft__"]'))
+    .map(a => ({ a, id: postId(a.getAttribute('href')) })).filter(x => x.id);
+  const seen = new Set();
+  const out = [];
+  for (const { a, id } of anchors) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    let unit = a, node = a.parentElement, depth = 0;
+    while (node && node.tagName !== 'BODY' && depth < 30) {
+      const ids = idsIn(node);
+      if (ids.size > 1) break;          // parent now spans other posts — stop
+      if (ids.has(id)) unit = node;     // still just this post — keep climbing
+      node = node.parentElement; depth++;
+    }
+    let caption = '';
+    unit.querySelectorAll('div[dir="auto"]').forEach(d => {
+      const art = d.closest('[role="article"]');
+      if (art) {
+        const l = art.getAttribute('aria-label') || '';
+        if (/^\s*comment by/i.test(l) || /^\s*reply by/i.test(l)) return;  // skip comments
+      }
+      const t = (d.innerText || '').trim();
+      if (t.length > caption.length) caption = t;  // caption = longest text block
+    });
+    out.push({ post_id: id, url: (a.href || '').split('?')[0], text: caption.slice(0, 2000) });
+  }
+  return out;
+}
+"""
+
+
 def _snapshot_article(element) -> dict:
     """Extract a stable plain-dict snapshot of a single FB article element.
 
@@ -206,11 +263,56 @@ class FacebookVendor(SocialVendor):
     def _headless_own_posts(self, handle: str, limit: int) -> list[SocialPost]:
         url = f"https://www.facebook.com/{handle}"
         try:
-            articles = self._scrape_articles(url, max_scrolls=60)
+            records = self._scrape_own_post_records(url, max_scrolls=60)
         except NoStoredSessionError:
             return []
-        posts = list(self._articles_to_posts(articles, profile_url=url))
+        posts = list(self._records_to_posts(records, profile_url=url))
         return posts[:limit] if limit else posts
+
+    def _scrape_own_post_records(self, url: str, *, max_scrolls: int) -> list[dict]:
+        """Load the profile feed and extract own posts by permalink anchor.
+
+        Posts on modern FB profiles are NOT ``role="article"`` (only comments are), so
+        we scroll to load the feed, then run one in-page pass that finds each post via
+        its permalink/timestamp anchor and reads the caption. Returns plain dicts so
+        the page can close before we build models.
+        """
+        anchor_selector = 'a[href*="__cft__"]'
+        records: list[dict] = []
+        with PlaywrightSession("facebook", headless=False, store=self._store) as page:
+            page.goto(url, wait_until="domcontentloaded")
+            try:
+                page.wait_for_selector(anchor_selector, timeout=20_000)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("FB feed didn't render at %s (continuing best-effort): %s", url, exc)
+            scroll_collect(page, anchor_selector, max_scrolls=max_scrolls, settle_ms=3000)
+            # Optional slow, visible step-through for debugging (highlights comments).
+            step_limit = step_limit_from_env()
+            if step_limit:
+                step_through_articles(page, _POST_ARTICLE_SELECTOR, limit=step_limit)
+            try:
+                records = page.evaluate(_EXTRACT_OWN_POSTS_JS) or []
+            except Exception as exc:  # noqa: BLE001
+                log.warning("FB own-post extraction failed: %s", exc)
+            log.info("FB extracted %d own-post record(s) at %s", len(records), url)
+        return records
+
+    @staticmethod
+    def _records_to_posts(records: list[dict], profile_url: str) -> Iterable[SocialPost]:
+        """Turn extracted post dicts into models — dedupe by id, drop captionless posts."""
+        seen_ids: set[str] = set()
+        for rec in records:
+            post_id = (rec.get("post_id") or "").strip()
+            text = (rec.get("text") or "").strip()
+            if not post_id or not text or post_id in seen_ids:
+                continue
+            seen_ids.add(post_id)
+            yield SocialPost(
+                vendor="facebook",
+                post_id=post_id,
+                url=rec.get("url") or profile_url,
+                text=text,
+            )
 
     def _headless_search_mentions(
         self, full_name: str, limit: int

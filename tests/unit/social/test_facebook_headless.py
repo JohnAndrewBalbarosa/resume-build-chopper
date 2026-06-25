@@ -66,7 +66,7 @@ def fb_vendor_with_state(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 def test_fetch_own_posts_uses_playwright_scrape_when_state_present(fb_vendor_with_state):
     with patch.object(
-        fb_vendor_with_state, "_scrape_articles", return_value=_PROFILE_ARTICLES
+        fb_vendor_with_state, "_scrape_own_post_records", return_value=_PROFILE_ARTICLES
     ) as scrape:
         posts = fb_vendor_with_state.fetch_own_posts("jane.doe")
     scrape.assert_called_once()
@@ -128,7 +128,7 @@ def test_limit_caps_returned_posts(fb_vendor_with_state):
         for i in range(25)
     ]
     with patch.object(
-        fb_vendor_with_state, "_scrape_articles", return_value=many_articles
+        fb_vendor_with_state, "_scrape_own_post_records", return_value=many_articles
     ):
         posts = fb_vendor_with_state.fetch_own_posts("jane.doe", limit=5)
     assert len(posts) == 5
