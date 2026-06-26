@@ -92,6 +92,23 @@ def test_step_through_highlights_media_and_preserves_shared(monkeypatch):
     assert "shared (preserved)" in joined
 
 
+def test_step_through_boxes_picture_and_text_as_separate_regions(monkeypatch):
+    monkeypatch.setenv("RESUME_BUILD_PLAYWRIGHT_VISUAL", "1")
+    page = MagicMock()
+    article = MagicMock()
+    page.query_selector_all.return_value = [article]
+
+    step_through_articles(page, "sel", limit=1)
+
+    joined = " ".join(str(c.args[0]) for c in article.evaluate.call_args_list)
+    # Picture and text are retrieved as two distinct, separately-boxed regions.
+    assert "retrieve picture" in joined
+    assert "retrieve text" in joined
+    # Text is boxed on the caption blocks (div[dir="auto"]), NOT the whole post — so the
+    # green text region never overlaps the picture region.
+    assert 'div[dir="auto"]' in joined
+
+
 def test_step_through_renders_the_hud(monkeypatch):
     monkeypatch.setenv("RESUME_BUILD_PLAYWRIGHT_VISUAL", "1")
     page = MagicMock()

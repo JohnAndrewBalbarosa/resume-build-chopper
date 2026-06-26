@@ -11,7 +11,8 @@ Five stages per post:
   1. POST     (red)    — outline the whole post: "this is all I look at".
   2. COMMENTS (orange) — outline nested comment articles: highlighted but NOT collected.
   3. IMAGES   (rose)   — outline each image/video being read.
-  4. TEXT     (green)  — outline the post body: the text that is actually collected.
+  4. TEXT     (green)  — outline the caption text blocks ONLY (separate from media):
+                         the text that is actually collected.
   5. SHARED   (blue)   — if this is a reshare, outline the shared post as preserved.
 
 Enabled only when ``RESUME_BUILD_PLAYWRIGHT_STEP_LIMIT`` is a positive integer — off
@@ -27,7 +28,6 @@ import os
 from .playwright_debug import PlaywrightVisualDebug, pause, visual_debug_from_env
 from .playwright_overlay import (
     POST_COLOR,
-    TEXT_COLOR,
     clear_overlays,
     ensure_overlay,
     hud_update,
@@ -51,8 +51,9 @@ el => {
 }
 """
 
-# Outline each image/video being read (rose). Media inside a preserved shared post is
-# left un-highlighted so the shared context reads as one unit. Returns the count.
+# Outline each image/video being retrieved (rose), as a region SEPARATE from the text.
+# Media inside a preserved shared post is left un-highlighted so the shared context
+# reads as one unit. Returns the count.
 _BOX_MEDIA_JS = """
 el => {
   if (!window.__rbBox) return 0;
@@ -62,8 +63,29 @@ el => {
   });
   const media = Array.from(el.querySelectorAll('img, video, [role="img"]'))
     .filter(n => !(shared && shared.contains(n)));
-  media.forEach(n => window.__rbBox(n, '#f43f5e', 'reading image', false));
+  media.forEach(n => window.__rbBox(n, '#f43f5e', 'retrieve picture', false));
   return media.length;
+}
+"""
+
+# Outline the caption TEXT blocks ONLY (green) — each div[dir="auto"] that holds real
+# text and isn't part of a comment subtree. Boxing the text divs (not the whole post)
+# keeps the text region visibly SEPARATE from the picture region. Returns the count.
+_BOX_TEXT_JS = """
+el => {
+  if (!window.__rbBox) return 0;
+  let count = 0;
+  el.querySelectorAll('div[dir="auto"]').forEach(d => {
+    const art = d.closest('[role="article"]');
+    if (art && art !== el) {
+      const label = art.getAttribute('aria-label') || '';
+      if (/^\\s*comment by/i.test(label) || /^\\s*reply by/i.test(label)) return;  // skip comments
+    }
+    if ((d.innerText || '').trim().length < 2) return;
+    window.__rbBox(d, '#22c55e', 'retrieve text', false);
+    count++;
+  });
+  return count;
 }
 """
 
@@ -153,14 +175,14 @@ def _step_one(
     _hud(page, debug, card=f"{n}/{total}", status=f"Skipping {comments} comment(s)", action="scan media")
     pause(page, debug=debug, ms=delay_ms)
 
-    # 3. Images/videos being read.
+    # 3. Pictures/videos being retrieved — a SEPARATE region from the text.
     media = article.evaluate(_BOX_MEDIA_JS)
-    _hud(page, debug, card=f"{n}/{total}", status=f"Reading {media} image(s)", action="collect text")
+    _hud(page, debug, card=f"{n}/{total}", status=f"Retrieve picture ({media})", action="retrieve text")
     pause(page, debug=debug, ms=delay_ms)
 
-    # 4. The post body text — what actually gets saved.
-    overlay_box(article, color=TEXT_COLOR, label="TEXT na kinokolekta", scroll=False, debug=debug)
-    _hud(page, debug, card=f"{n}/{total}", status="Collecting text", action="next card")
+    # 4. The caption TEXT blocks only — boxed separately from the picture.
+    text_blocks = article.evaluate(_BOX_TEXT_JS)
+    _hud(page, debug, card=f"{n}/{total}", status=f"Retrieve text ({text_blocks})", action="next card")
     pause(page, debug=debug, ms=delay_ms)
 
     # 5. Shared post (if any) — preserved, never skipped.
