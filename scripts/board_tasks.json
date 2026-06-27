@@ -16,7 +16,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Domain models (pydantic contracts)",
@@ -27,7 +32,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Role picker — static + AI",
@@ -38,7 +48,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Extractors — static regex + AI relevance",
@@ -49,7 +64,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Synthesizers — static + AI assembly",
@@ -60,7 +80,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Role-aware filtering (Harvard principles)",
@@ -71,7 +96,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Review orchestrator (resume audit)",
@@ -82,7 +112,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "LLM adapter + registry (4 providers)",
@@ -93,7 +128,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Sources — GitHub + Document",
@@ -104,7 +144,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Social aggregator (parallel + dedupe + TTL cache)",
@@ -115,7 +160,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Social vendors (Facebook/LinkedIn/Twitter/Instagram)",
@@ -126,7 +176,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Social auth + sessions + visible browser login",
@@ -137,7 +192,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Cookie fallbacks (curl_cffi / manual / resolve)",
@@ -148,7 +208,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Headless browser pool + scroll-collect",
@@ -159,7 +224,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Visual scraper debugger (overlay/step/picker)",
@@ -170,7 +240,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Clean per-vendor export + debug DOM trace",
@@ -181,7 +256,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Renderers (LaTeX/HTML/Markdown/JSON/PDF)",
@@ -192,7 +272,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "FastAPI web prototype + OAuth identity",
@@ -203,7 +288,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "CDO advisor (resume analysis)",
@@ -214,7 +304,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Typer CLI + commands (build/review/scrape/auth)",
@@ -225,7 +320,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Config-driven roles / regex / templates",
@@ -236,7 +336,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Unit + integration test suite (172 passing)",
@@ -247,7 +352,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Legacy Engine",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Per-folder module READMEs + Mermaid",
@@ -258,7 +368,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Docs & Ops",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Department docs + PlantUML",
@@ -269,7 +384,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Docs & Ops",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Master specification (NotebookLM)",
@@ -280,7 +400,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Docs & Ops",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "Delegation backlog + board sync automation",
@@ -291,7 +416,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Docs & Ops",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "P1.1 Finalize platform architecture + ADRs",
@@ -300,9 +430,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: lock the Next.js + Supabase architecture and record decisions.\n📦 Scope: stack choices, module boundaries, ADRs, technical roadmap.\n✔ Acceptance: ADRs merged; diagram in docs/.\n👤 HITL: Architect sign-off.\n🔗 Depends: docs/SPECIFICATION.md",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.2 Design normalized DB schema (Layers 1-3) + ERD",
@@ -311,9 +446,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: model auth + raw + normalized layers as the single source of truth.\n📦 Scope: tables for experiences/projects/skills/... + relationship tables; ERD.\n✔ Acceptance: ERD reviewed; covers spec §5.\n👤 HITL: schema review.\n🔗 Depends: P1.1",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.3 Write SQL migrations + seed data",
@@ -322,9 +462,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: reproducible schema via migrations.\n📦 Scope: forward migrations + seed/sample data.\n✔ Acceptance: migrate up/down clean on a fresh DB.\n👤 HITL: migration dry-run reviewed.\n🔗 Depends: P1.2",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.4 Author RLS policies for all user-scoped tables",
@@ -333,9 +478,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: enforce privacy at the database (not just UI).\n📦 Scope: per-row policies for every user-scoped table; owner-only on raw/normalized.\n✔ Acceptance: deny-by-default verified with RLS tests.\n👤 HITL: security review of every policy.\n🔗 Depends: P1.2",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.5 Supabase Auth (Google/GitHub/Email) + role bootstrap",
@@ -344,9 +494,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: sign-in + role assignment.\n📦 Scope: providers, session, roles (anonymous→admin per spec §12).\n✔ Acceptance: login works; default role applied.\n👤 HITL: auth flow review.\n🔗 Depends: P1.1",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.6 Next.js app scaffold on Vercel",
@@ -355,9 +510,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: deployable app shell.\n📦 Scope: routing, layout, env wiring, Vercel project.\n✔ Acceptance: preview deploy green.\n👤 HITL: deploy preview reviewed.\n🔗 Depends: P1.1",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.7 Raw-input capture UI (manual + import)",
@@ -366,9 +526,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: let users add career raw data.\n📦 Scope: manual entry + file/import into Layer-2 raw tables.\n✔ Acceptance: data lands in raw tables under RLS.\n👤 HITL: UX review.\n🔗 Depends: P1.5, P1.4",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.8 AI extraction pipeline (clean->dedup->classify->tag)",
@@ -377,9 +542,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: turn raw inputs into structured signals.\n📦 Scope: cleaning, dedup, classification, tagging (spec §8). Port ideas from the legacy pipeline.\n✔ Acceptance: sampled outputs reviewed for accuracy.\n👤 HITL: output samples human-reviewed.\n🔗 Depends: P1.2, Q.25",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.9 Skill/experience/industry extraction into normalized tables",
@@ -388,9 +558,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: populate Layer-3 normalized tables.\n📦 Scope: skill/experience/industry extraction + writes.\n✔ Acceptance: spot-check accuracy on a sample.\n👤 HITL: spot-check accuracy.\n🔗 Depends: P1.8",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P1.10 Resume Generator (NCD -> generated_resume)",
@@ -399,9 +574,14 @@
       "group": "Foundation",
       "body": "🎯 Goal: generate role-targeted resumes from the database.\n📦 Scope: select normalized data by target role → generated_resume (Layer 4).\n✔ Acceptance: a generated resume reviewed end-to-end.\n👤 HITL: generated resume reviewed.\n🔗 Depends: P1.9",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P0",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "P2.11 Public profile (curated fields only) + nickname scheme",
@@ -409,10 +589,15 @@
       "role": "Frontend",
       "group": "Profiles & Analytics",
       "body": "🎯 Goal: shareable public profile that leaks nothing private.\n📦 Scope: nickname (e.g. Angela #7A82F), summary, top skills, score; never email/phone/raw.\n✔ Acceptance: privacy audit shows no private fields.\n👤 HITL: privacy review.\n🔗 Depends: P1.10, P1.4",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P2.12 Career score + career metrics",
@@ -420,10 +605,15 @@
       "role": "Analytics",
       "group": "Profiles & Analytics",
       "body": "🎯 Goal: per-user career signals.\n📦 Scope: define + compute career_score and metrics (Layer 5).\n✔ Acceptance: metric definitions signed off.\n👤 HITL: metric definition sign-off.\n🔗 Depends: P1.9",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P2.13 Aggregated/anonymous platform analytics + leaderboards",
@@ -431,10 +621,15 @@
       "role": "Analytics",
       "group": "Profiles & Analytics",
       "body": "🎯 Goal: platform-wide insights without identifying anyone.\n📦 Scope: trends, popular skills, leaderboards — anonymized.\n✔ Acceptance: anonymity audit passes.\n👤 HITL: anonymity audit.\n🔗 Depends: P2.12",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Points & Leaderboard",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P2.14 Resume templates system",
@@ -442,10 +637,15 @@
       "role": "Frontend",
       "group": "Profiles & Analytics",
       "body": "🎯 Goal: multiple resume looks from one database.\n📦 Scope: template registry + selection (Layer 4).\n✔ Acceptance: 2+ templates render the same resume.\n👤 HITL: design review.\n🔗 Depends: P1.10",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P3.15 Portfolio builder",
@@ -453,10 +653,15 @@
       "role": "Frontend",
       "group": "Intelligence",
       "body": "🎯 Goal: a portfolio view generated from the NCD.\n📦 Scope: projects/achievements showcase.\n✔ Acceptance: review.\n👤 HITL: review.\n🔗 Depends: P1.10",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P3.16 Job matching",
@@ -464,10 +669,15 @@
       "role": "AI",
       "group": "Intelligence",
       "body": "🎯 Goal: match users to roles/jobs.\n📦 Scope: relevance scoring against role/industry.\n✔ Acceptance: relevance eval on a sample.\n👤 HITL: relevance eval.\n🔗 Depends: P1.9",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P3.17 AI recommendations + missing-skills + roadmap",
@@ -475,10 +685,15 @@
       "role": "AI",
       "group": "Intelligence",
       "body": "🎯 Goal: actionable career guidance.\n📦 Scope: recommendations, gap detection, learning roadmap.\n✔ Acceptance: human eval of suggestions.\n👤 HITL: human eval of suggestions.\n🔗 Depends: P2.12",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P2",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P4.18 Backend API (verification, AI queue, scheduled jobs)",
@@ -486,10 +701,15 @@
       "role": "DevOps",
       "group": "Scale",
       "body": "🎯 Goal: move heavy/async work off the serverless path.\n📦 Scope: verification, AI queue, scheduled jobs, notifications (spec §13).\n✔ Acceptance: architecture review.\n👤 HITL: architecture review.\n🔗 Depends: Foundation complete",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "DevOps",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 2,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "P4.19 Migrate scraping to backend background jobs",
@@ -497,10 +717,15 @@
       "role": "DevOps",
       "group": "Scale",
       "body": "🎯 Goal: scrape on a schedule, server-side.\n📦 Scope: port the legacy scraper concepts into background jobs.\n✔ Acceptance: review.\n👤 HITL: review.\n🔗 Depends: P4.18",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "DevOps",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 3,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": ""
     },
     {
       "title": "ML.20 Define ML task(s): industry/skill/career-score classifiers",
@@ -508,10 +733,15 @@
       "role": "AI",
       "group": "Model Training",
       "body": "🎯 Goal: pick chapter-owned PyTorch models worth training.\n📦 Scope: frame industry detection / skill tagging / career scoring as ML tasks.\n✔ Acceptance: problem framing reviewed.\n👤 HITL: problem framing reviewed.\n🔗 Depends: P1.9 (data available)",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 5,
+      "milestone": "Model Training — Wk2",
+      "assignee": ""
     },
     {
       "title": "ML.21 Dataset: collect + label from normalized data (privacy-safe)",
@@ -519,10 +749,15 @@
       "role": "AI",
       "group": "Model Training",
       "body": "🎯 Goal: a labeled dataset that respects privacy.\n📦 Scope: sampling, labeling, consent handling.\n✔ Acceptance: labeling + consent reviewed.\n👤 HITL: labeling + consent reviewed.\n🔗 Depends: ML.20, P1.4",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 5,
+      "milestone": "Model Training — Wk2",
+      "assignee": ""
     },
     {
       "title": "ML.22 Train PyTorch model(s) + track experiments",
@@ -530,10 +765,15 @@
       "role": "AI",
       "group": "Model Training",
       "body": "🎯 Goal: trained baseline model(s).\n📦 Scope: training loop, experiment tracking, checkpoints.\n✔ Acceptance: metrics reviewed by a human.\n👤 HITL: metrics reviewed.\n🔗 Depends: ML.21",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 5,
+      "milestone": "Model Training — Wk2",
+      "assignee": ""
     },
     {
       "title": "ML.23 Evaluate (held-out set, bias/fairness check)",
@@ -541,10 +781,15 @@
       "role": "AI",
       "group": "Model Training",
       "body": "🎯 Goal: trustworthy evaluation before any deploy.\n📦 Scope: held-out eval + bias/fairness checks.\n✔ Acceptance: eval sign-off.\n👤 HITL: eval sign-off before deploy.\n🔗 Depends: ML.22",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 5,
+      "milestone": "Model Training — Wk2",
+      "assignee": ""
     },
     {
       "title": "ML.24 Serve model behind the AI adapter",
@@ -552,10 +797,15 @@
       "role": "AI",
       "group": "Model Training",
       "body": "🎯 Goal: use the trained model in production behind the adapter.\n📦 Scope: inference endpoint + adapter integration (spec §15).\n✔ Acceptance: inference review.\n👤 HITL: inference review.\n🔗 Depends: ML.23, Q.25",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "AI & ML",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P3",
+      "estimate": 5,
+      "milestone": "Model Training — Wk2",
+      "assignee": ""
     },
     {
       "title": "Q.25 AI model adapter layer (Gemini/OpenAI/Claude/Ollama/LM Studio)",
@@ -563,10 +813,15 @@
       "role": "AI",
       "group": "Quality & Security",
       "body": "🎯 Goal: never depend on one AI.\n📦 Scope: one interface in front of all providers (spec §15). Port the legacy LLM registry.\n✔ Acceptance: interface review; swap providers via config.\n👤 HITL: interface review.\n🔗 Depends: P1.1",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "Q.26 Test suite: AI output validation, DB consistency, RLS tests",
@@ -574,10 +829,15 @@
       "role": "QA",
       "group": "Quality & Security",
       "body": "🎯 Goal: confidence in the platform.\n📦 Scope: AI output checks, DB consistency, RLS deny-by-default tests.\n✔ Acceptance: coverage target + RLS pass.\n👤 HITL: coverage + RLS pass.\n🔗 Depends: P1.4",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "Q.27 Regression harness for AI outputs",
@@ -585,10 +845,15 @@
       "role": "QA",
       "group": "Quality & Security",
       "body": "🎯 Goal: catch AI quality drift.\n📦 Scope: baseline + diff harness for generated outputs.\n✔ Acceptance: baseline approved.\n👤 HITL: baseline approved.\n🔗 Depends: P1.10",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "Q.28 Security: threat model + access-control docs",
@@ -596,10 +861,15 @@
       "role": "Security",
       "group": "Quality & Security",
       "body": "🎯 Goal: documented security posture.\n📦 Scope: threat model, access-control matrix, privacy review.\n✔ Acceptance: threat model review.\n👤 HITL: threat model review.\n🔗 Depends: P1.4",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "Q.29 CI/CD + monitoring",
@@ -607,10 +877,15 @@
       "role": "DevOps",
       "group": "Quality & Security",
       "body": "🎯 Goal: automated checks + observability.\n📦 Scope: CI pipeline, deploy, monitoring/alerts.\n✔ Acceptance: pipeline green on main.\n👤 HITL: pipeline green.\n🔗 Depends: P1.6",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "Q.30 Fix 2 broken legacy test imports (test_cli, test_manual_cookies)",
@@ -619,9 +894,14 @@
       "group": "Quality & Security",
       "body": "🎯 Goal: green collection on the full suite.\n📦 Scope: test_cli.py imports _apply_visual_env/app and test_manual_cookies imports _VENDOR_COOKIES — names that moved during refactor. Update imports.\n✔ Acceptance: pytest collects with 0 errors.\n👤 HITL: QA review.\n🔗 Depends: none (quick win)",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Platform Core",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Foundation — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.S1 Org-ops pipeline scaffold (interfaces + middleman, SoC)",
@@ -632,7 +912,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S2 Confirmed pipeline design (reverse-prompted)",
@@ -643,7 +928,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S3 Routing rules table schema + example",
@@ -654,7 +944,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S4 Approval middleman (parallel + unanimous)",
@@ -665,7 +960,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S5 Officer scoring — response-time (speed) calc",
@@ -676,7 +976,12 @@
       "start": "2026-06-27",
       "target": "2026-06-27",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-06-27",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Shipped",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.1 LinkIngestor (RAG over submitted link)",
@@ -684,10 +989,15 @@
       "role": "AI",
       "group": "Org Operations",
       "body": "🎯 Read+understand the submitted URL into ActivityContext.\n📦 fetch URL + retrieval + LLM extraction.\n🔗 Blocked: RAG infra. Stub: platform/org-ops/ingest.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.2 DepartmentBriefGenerator (per-dept briefs)",
@@ -695,10 +1005,15 @@
       "role": "AI",
       "group": "Org Operations",
       "body": "🎯 Compacted brief+draft per department/paper.\n👤 officers finalize; AI assists.\n🔗 Depends: Q.25 adapter. Stub: briefs.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.3 DocumentInjector — real template rendering",
@@ -706,10 +1021,15 @@
       "role": "AI",
       "group": "Org Operations",
       "body": "🎯 data (JSON/SQL)+template→document.\n🔗 BLOCKED on the document template + output format. Stub: documents.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.4 Department approval UI (HITL, parallel)",
@@ -717,10 +1037,15 @@
       "role": "Frontend",
       "group": "Org Operations",
       "body": "🎯 UI for each dept to approve/edit/reject in parallel.\n👤 HITL. Depends: ORG.10, P1.5",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.5 Routing-rules admin UI + storage (Supabase)",
@@ -728,10 +1053,15 @@
       "role": "Frontend",
       "group": "Org Operations",
       "body": "🎯 Admin-editable rules table.\n📦 CRUD + persistence. Depends: P1.2",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.6 Email pipeline + recipient resolution + HITL send",
@@ -739,10 +1069,15 @@
       "role": "Security",
       "group": "Org Operations",
       "body": "🎯 Draft+resolve who to email; human confirms before send.\n🔗 Needs email surface (Gmail/org mail). Stub: downstream.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.7 FB Page posting pipeline + HITL",
@@ -750,10 +1085,15 @@
       "role": "AI",
       "group": "Org Operations",
       "body": "🎯 Draft+publish to FB Page; human confirms before post.\n🔗 Needs FB Page API token. Stub: downstream.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.8 Officer scoring — vote-based quality + HITL confirm",
@@ -761,10 +1101,15 @@
       "role": "Analytics",
       "group": "Org Operations",
       "body": "🎯 Aggregate peer votes into quality; human confirms.\n🔗 Needs voting model. Stub: scoring.ts",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.9 Intake endpoint (anyone submits link/details)",
@@ -772,10 +1117,15 @@
       "role": "Frontend",
       "group": "Org Operations",
       "body": "🎯 Public/auth submission that starts the pipeline.\n📦 form/endpoint→IntakeSubmission. Depends: P1.6",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Points & Leaderboard",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.10 Departments/roles/voting data model (Supabase+RLS)",
@@ -783,10 +1133,15 @@
       "role": "Database",
       "group": "Org Operations",
       "body": "🎯 Tables for departments, officer roles, votes.\n👤 RLS reviewed.\n🔗 Depends: P1.2, P1.4",
-      "start": "2026-07-04",
-      "target": "2026-07-17",
+      "start": "2026-06-27",
+      "target": "2026-07-04",
       "department": "Org Operations",
-      "hitl": "Yes"
+      "hitl": "Yes",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": ""
     },
     {
       "title": "ORG.S6 Repo hygiene — untrack Chrome CDP cache (1901 files)",
@@ -795,9 +1150,14 @@
       "group": "Docs & Ops",
       "body": "🤖 AI-built this session — needs your review.\n✅ Untracked .careerlens-chrome-cdp/ (1900 files) + stray submission .docx; files kept on disk. Added .gitignore guards (.careerlens-chrome-cdp/, *-chrome-cdp/).\nWhere: .gitignore (git index only; no commit made).\n🗺️ Roadmap: unblocks clean diffs/PR reviews before any new platform work.\n🟢 Best case (≤1wk): you commit the index change; board + repo stay clean.\n🔴 Worst case: junk was already pushed to the remote → needs a history rewrite (git filter-repo) to fully purge.",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Docs & Ops",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Foundation — Wk1",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S7 Points/Leaderboard/Growth requirements docs",
@@ -806,9 +1166,14 @@
       "group": "Org Operations",
       "body": "🤖 AI-built this session — needs your sign-off.\n✅ Captured the confirmed two-track model (cut-throat merit leaderboard + diagnostic growth track, explicitly NOT equity-by-points), heap priority, clustered opportunity graph + tiebreaker, referral, link→JSON ingestion (deterministic vs AI), client-side browser-extension scraping.\nWhere: docs/ORG-OPERATIONS.md §10, docs/POINTS-ENGINE.md, docs/CLIENT-SCRAPING.md.\n🗺️ Roadmap: spec basis that drives ORG.S8 (schema) + ORG.S9 (engine) + ORG.7/scraping.\n🟢 Best case (≤1wk): you sign off → build proceeds unblocked.\n🔴 Worst case: open questions (source weights, low-bracket cutoff, gain→difficulty) stay unresolved → engine tuning blocked.",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Points & Leaderboard",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 1,
+      "milestone": "Org Operations — Wk1",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S8 Points/referral/growth data model (Supabase + RLS)",
@@ -817,9 +1182,14 @@
       "group": "Org Operations",
       "body": "🤖 AI-built this session — needs schema review.\n✅ 3 migrations + ERD. Append-only point_events ledger (service-role writes only), merit leaderboard matview (member_id + nickname only, no PII), anti-self-referral DB guards, growth = diagnostic only (no point redistribution).\nWhere: supabase/migrations/0001_org_activities.sql, 0002_points_leaderboard.sql, 0003_referrals_growth.sql, docs/DATA-MODEL.md.\n🗺️ Roadmap: the org-ops DB foundation; pairs with ORG.10 (departments/voting).\n🟢 Best case (≤1wk): applied to a real Supabase project; RLS deny-by-default verified.\n🔴 Worst case: column-level privilege escalation (role/is_officer) needs an app-layer guard before go-live; matview refresh strategy untested at scale.",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Points & Leaderboard",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 3,
+      "milestone": "Org Operations — Wk1",
+      "assignee": "JohnAndrewBalbarosa"
     },
     {
       "title": "ORG.S9 Points engine (heap + merit leaderboard + growth diagnostic)",
@@ -828,9 +1198,14 @@
       "group": "Org Operations",
       "body": "🤖 AI-built this session — needs review + tests.\n✅ Pure-logic TypeScript (no I/O): generic PriorityQueue (heap), source-weighted ledger aggregation, cut-throat merit ranking with a deterministic tiebreaker, growth recommendations that never change rank.\nWhere: platform/org-ops/points/ (heap.ts, scoring.ts, leaderboard.ts, growth.ts, index.ts, README.md).\n🗺️ Roadmap: wire to the Supabase data-access layer (reads ORG.S8 ledger) + add unit tests.\n🟢 Best case (≤1wk): tsconfig + vitest added, unit tests green, wired behind a repository.\n🔴 Worst case: repo has NO TS toolchain yet → code is unverified (uncompiled, untested) until that exists.",
       "start": "2026-06-27",
-      "target": "2026-07-03",
+      "target": "2026-07-04",
       "department": "Points & Leaderboard",
-      "hitl": "No"
+      "hitl": "No",
+      "worst_case": "2026-07-11",
+      "priority": "P1",
+      "estimate": 2,
+      "milestone": "Org Operations — Wk1",
+      "assignee": "JohnAndrewBalbarosa"
     }
   ],
   "date_fields": [
