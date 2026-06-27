@@ -141,6 +141,48 @@ Score officers on the tasks they complete.
 
 ---
 
+## 8b. CONFIRMED pipeline design (v1) — reverse-prompted & approved
+
+> Locked with the user. Decisions below drive the eventual build.
+
+**The flow (corrected — RAG = ingest the submitted link, not classify):**
+
+```mermaid
+flowchart TD
+    A[Member submits a LINK or details<br/>e.g. a competition to join] --> B[Ingest / RAG:<br/>extract + understand the link's context]
+    B --> C[Router: configurable rules table<br/>doc type + scope -> required departments]
+    C --> D[Per-department brief generator:<br/>compacted context + prompt PER paper<br/>e.g. secretary: to whom + what content]
+    D --> E[Each department/officer generates<br/>+ finalizes its paper AI-assisted]
+    E --> F[Approval middleman dispatches to<br/>all required departments in PARALLEL]
+    F -->|all must approve - unanimous| G[Approved]
+    F -->|edit/reject| D
+    G --> H[Auto-trigger downstream:<br/>email + FB posting pipelines]
+    H --> I[[each still has its own HITL<br/>confirm before send/post]]
+```
+
+**Locked decisions:**
+
+1. **Ingestion (RAG):** the AI's RAG step is to **read the submitted link** (e.g. a competition
+   page) and extract its context — sometimes this is needed because it must be endorsed/approved
+   by school officials. RAG is *content ingestion*, not pipeline classification.
+2. **Per-department brief generation:** using that context, the system produces a **compacted
+   brief + prompt for each concerned department / each paper** (e.g. the secretary gets: for whom
+   the paper is, what its content should be). Officers still generate/finalize the actual papers,
+   AI-assisted.
+3. **Routing source = configurable rules table** (admin-editable: doc type/scope → required
+   approvers). Changeable without a code change.
+4. **Approval semantics = parallel, unanimous** — all required departments see it at once and
+   ALL must approve before proceeding.
+5. **Post-approval = auto-trigger downstream** (email + FB posting), but **each downstream action
+   keeps its own HITL** confirm before send/post.
+
+**Code shape (separation of concern):**
+- `LinkIngestor` (RAG over the submitted URL/details) → `ActivityContext`
+- `DepartmentBriefGenerator` → per-department `{recipient, required_content, draft}`
+- `RoutingRules` (config/DB table) → `required_departments`
+- `ApprovalMiddleman` + registry of `DepartmentApprover` (secretariat, treasurer, …) — parallel dispatch, collect verdicts
+- Downstream `EmailSender` / `Poster` behind interfaces, each HITL-gated
+
 ## 9. Folder rename note
 
 User wants the local folder renamed to **`pytorch`**. This can't be done safely from inside the
