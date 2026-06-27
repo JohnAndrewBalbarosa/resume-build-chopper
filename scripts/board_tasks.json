@@ -510,6 +510,141 @@
       "body": "🎯 Goal: green collection on the full suite.\n📦 Scope: test_cli.py imports _apply_visual_env/app and test_manual_cookies imports _VENDOR_COOKIES — names that moved during refactor. Update imports.\n✔ Acceptance: pytest collects with 0 errors.\n👤 HITL: QA review.\n🔗 Depends: none (quick win)",
       "start": "2026-06-27",
       "target": "2026-07-03"
+    },
+    {
+      "title": "ORG.S1 Org-ops pipeline scaffold (interfaces + middleman, SoC)",
+      "stage": "Done",
+      "role": "Architect",
+      "group": "Org Operations",
+      "body": "✅ Delivered. TypeScript contracts for the full pipeline. Where: platform/org-ops/",
+      "start": "2026-06-27",
+      "target": "2026-06-27"
+    },
+    {
+      "title": "ORG.S2 Confirmed pipeline design (reverse-prompted)",
+      "stage": "Done",
+      "role": "Architect",
+      "group": "Org Operations",
+      "body": "✅ Delivered. Locked design + decisions. Where: docs/ORG-OPERATIONS.md §8b",
+      "start": "2026-06-27",
+      "target": "2026-06-27"
+    },
+    {
+      "title": "ORG.S3 Routing rules table schema + example",
+      "stage": "Done",
+      "role": "Database",
+      "group": "Org Operations",
+      "body": "✅ Delivered. Configurable doc-type/scope→departments. Where: platform/org-ops/routing.ts, config/routing-rules.example.json",
+      "start": "2026-06-27",
+      "target": "2026-06-27"
+    },
+    {
+      "title": "ORG.S4 Approval middleman (parallel + unanimous)",
+      "stage": "Done",
+      "role": "AI",
+      "group": "Org Operations",
+      "body": "✅ Delivered. Registry + parallel dispatch + unanimous gate. Where: platform/org-ops/approval.ts",
+      "start": "2026-06-27",
+      "target": "2026-06-27"
+    },
+    {
+      "title": "ORG.S5 Officer scoring — response-time (speed) calc",
+      "stage": "Done",
+      "role": "Analytics",
+      "group": "Org Operations",
+      "body": "✅ Delivered. Pure speed metric from timestamps. Where: platform/org-ops/scoring.ts",
+      "start": "2026-06-27",
+      "target": "2026-06-27"
+    },
+    {
+      "title": "ORG.1 LinkIngestor (RAG over submitted link)",
+      "stage": "Backlog",
+      "role": "AI",
+      "group": "Org Operations",
+      "body": "🎯 Read+understand the submitted URL into ActivityContext.\n📦 fetch URL + retrieval + LLM extraction.\n🔗 Blocked: RAG infra. Stub: platform/org-ops/ingest.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.2 DepartmentBriefGenerator (per-dept briefs)",
+      "stage": "Backlog",
+      "role": "AI",
+      "group": "Org Operations",
+      "body": "🎯 Compacted brief+draft per department/paper.\n👤 officers finalize; AI assists.\n🔗 Depends: Q.25 adapter. Stub: briefs.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.3 DocumentInjector — real template rendering",
+      "stage": "Backlog",
+      "role": "AI",
+      "group": "Org Operations",
+      "body": "🎯 data (JSON/SQL)+template→document.\n🔗 BLOCKED on the document template + output format. Stub: documents.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.4 Department approval UI (HITL, parallel)",
+      "stage": "Backlog",
+      "role": "Frontend",
+      "group": "Org Operations",
+      "body": "🎯 UI for each dept to approve/edit/reject in parallel.\n👤 HITL. Depends: ORG.10, P1.5",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.5 Routing-rules admin UI + storage (Supabase)",
+      "stage": "Backlog",
+      "role": "Frontend",
+      "group": "Org Operations",
+      "body": "🎯 Admin-editable rules table.\n📦 CRUD + persistence. Depends: P1.2",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.6 Email pipeline + recipient resolution + HITL send",
+      "stage": "Backlog",
+      "role": "Security",
+      "group": "Org Operations",
+      "body": "🎯 Draft+resolve who to email; human confirms before send.\n🔗 Needs email surface (Gmail/org mail). Stub: downstream.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.7 FB Page posting pipeline + HITL",
+      "stage": "Backlog",
+      "role": "AI",
+      "group": "Org Operations",
+      "body": "🎯 Draft+publish to FB Page; human confirms before post.\n🔗 Needs FB Page API token. Stub: downstream.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.8 Officer scoring — vote-based quality + HITL confirm",
+      "stage": "Backlog",
+      "role": "Analytics",
+      "group": "Org Operations",
+      "body": "🎯 Aggregate peer votes into quality; human confirms.\n🔗 Needs voting model. Stub: scoring.ts",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.9 Intake endpoint (anyone submits link/details)",
+      "stage": "Backlog",
+      "role": "Frontend",
+      "group": "Org Operations",
+      "body": "🎯 Public/auth submission that starts the pipeline.\n📦 form/endpoint→IntakeSubmission. Depends: P1.6",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
+    },
+    {
+      "title": "ORG.10 Departments/roles/voting data model (Supabase+RLS)",
+      "stage": "Backlog",
+      "role": "Database",
+      "group": "Org Operations",
+      "body": "🎯 Tables for departments, officer roles, votes.\n👤 RLS reviewed.\n🔗 Depends: P1.2, P1.4",
+      "start": "2026-07-04",
+      "target": "2026-07-17"
     }
   ],
   "date_fields": [
