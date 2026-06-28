@@ -57,12 +57,27 @@ def test_collect_runs_only_enabled_vendors(cache_dir: Path):
     agg.register("a", lambda: _FakeVendor("a", [_post("a", "1")], [_mention("a", "m1")]))
     agg.register("b", lambda: _FakeVendor("b", [_post("b", "2")], []))
 
-    cfg = ScrapeConfig(full_name="X", enabled_vendors=("a",), handles={"a": "h"})
+    # include_mentions=True to exercise both own-posts and the opt-in search-bar path.
+    cfg = ScrapeConfig(
+        full_name="X", enabled_vendors=("a",), handles={"a": "h"}, include_mentions=True
+    )
     result = agg.collect(cfg)
 
     assert {p.post_id for p in result.posts} == {"1"}
     assert {m.mention_id for m in result.mentions} == {"m1"}
     assert result.failures == {}
+
+
+def test_mentions_off_by_default_owns_posts_only(cache_dir: Path):
+    agg = SocialAggregator(cache_dir=cache_dir)
+    agg.register("a", lambda: _FakeVendor("a", [_post("a", "1")], [_mention("a", "m1")]))
+
+    cfg = ScrapeConfig(full_name="X", enabled_vendors=("a",), handles={"a": "h"})
+    result = agg.collect(cfg)
+
+    # Default = own posts only; search-bar mentions are NOT collected.
+    assert {p.post_id for p in result.posts} == {"1"}
+    assert result.mentions == []
 
 
 def test_unknown_vendor_records_failure_without_crashing(cache_dir: Path):

@@ -106,10 +106,13 @@ class SocialAggregator:
                 posts = vendor.fetch_own_posts(handle, limit=config.per_vendor_limit) or []
             except Exception as exc:  # noqa: BLE001
                 log.warning("%s.fetch_own_posts failed: %s", name, exc)
-        try:
-            mentions = vendor.search_mentions(config.full_name, limit=config.per_vendor_limit) or []
-        except Exception as exc:  # noqa: BLE001
-            log.warning("%s.search_mentions failed: %s", name, exc)
+        # Search-bar mentions are opt-in: they return posts the user did NOT author
+        # (e.g. anyone mentioning the name), which do not belong on the user's own resume.
+        if config.include_mentions:
+            try:
+                mentions = vendor.search_mentions(config.full_name, limit=config.per_vendor_limit) or []
+            except Exception as exc:  # noqa: BLE001
+                log.warning("%s.search_mentions failed: %s", name, exc)
 
         self._write_cache(name, posts, mentions)
         return posts, mentions

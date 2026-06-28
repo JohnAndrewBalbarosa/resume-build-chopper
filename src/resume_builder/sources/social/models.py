@@ -48,3 +48,6 @@ class ScrapeConfig(BaseModel):
     handles: dict[str, str] = Field(default_factory=dict)
     cache_ttl_seconds: int = 21600
     per_vendor_limit: int = 50
+    # Own profile posts only by default. Search-bar "mentions" (e.g. FB /search/posts)
+    # pull content the user did NOT author, so they are opt-in, not the default.
+    include_mentions: bool = False
