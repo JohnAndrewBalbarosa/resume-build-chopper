@@ -38,10 +38,13 @@ Wala munang per-site selectors — gawing agent muna, mag-ipon ng traces, saka m
    **Action RAG** of navigation traces, and **generalization**. This agent is the **own-profile
    scraper** half of the pair; the job agent is the **applier** half.
 
-4. **SHARED CORE, separate purpose.** The **browser-agent runtime + Action RAG** are **shared
-   infrastructure** usable by *both* this scraper and the job agent. But this agent's deliverable is
-   the **résumé**. ⚠️ The **exact module boundary** — how much is shared vs scraper-specific — is
-   **still to be confirmed with the user** (see §9). Flag it, hindi muna i-over-commit.
+4. **ONE shared package, two entry points** ✅ **(CONFIRMED — Option A).** There is a **single
+   autonomous browser-agent core + a single Action RAG**, exposed via **two entry points**:
+   `scrape-own-profile` (this résumé agent) and `apply-to-job` (the JOB agent). It is **not** two
+   siblings over a thin shared core — it is **one unified package**. The browser runtime, Action RAG,
+   dynamic-site handling, and generalization all live **inside the shared package**; only the
+   **profile-nav / own-post-extraction / résumé-feed** specifics belong to this entry point (mirrored
+   by the apply-side specifics on the JOB entry point). This agent's deliverable is the **résumé**.
 
 5. **Own-posts ONLY.** Never search-bar "mentions" (content the user did **not** author). This was
    just fixed in the legacy scraper — `include_mentions` is now **opt-in, default off** — and we
@@ -203,20 +206,23 @@ flowchart LR
 
 ---
 
-## 5. Reuse map — what's SHARED vs SCRAPER-SPECIFIC
+## 5. Reuse map — ONE shared package, two entry points
 
-> ⚠️ This split is the **proposed** boundary. The exact module lines are an **open question to
-> confirm with the user** (§9). Treat the table as direction, not a contract.
+> ✅ **CONFIRMED — Option A.** This is **one unified package**: a single autonomous browser-agent
+> **core** + a single **Action RAG**, exposed via **two entry points** — `scrape-own-profile` (this
+> résumé agent) and `apply-to-job` (the JOB agent). It is **not** two siblings over a thin core. The
+> table below shows what lives in the **shared package core** vs what is specific to **this
+> (scrape) entry point** — mirrored by the apply entry point's specifics on the JOB side.
 
-| Capability | SHARED (with Job Application Expert) | SCRAPER-SPECIFIC (this agent) |
+| Capability | SHARED PACKAGE CORE (both entry points) | THIS (scrape) ENTRY POINT'S SPECIFICS |
 |---|---|---|
-| **Browser runtime** | CDP-attach to user's logged-in session, observe→act→verify loop, bounded waits/retries, scroll-collect, iframe/Shadow-DOM handling | uses it **read-only** (navigate + read), no fill/submit |
-| **Action RAG** | the trace store, embedding-over-features, retrieve-before-act, fine-tune corpus | **navigation traces** (own-profile reach + post-shape) vs the job agent's form-fill traces |
-| **Dynamic-site handling** | SPA re-renders, lazy/virtual lists, modals/cookie walls, a11y/role-tree targeting (`JOB-APPLICATION-AGENT.md` §9) | applied to **profile/post surfaces** rather than application forms |
+| **Browser runtime** | CDP-attach to user's logged-in session, observe→act→verify loop, bounded waits/retries, scroll-collect, iframe/Shadow-DOM handling | invoked **read-only** (navigate + read), no fill/submit |
+| **Action RAG** | the trace store, embedding-over-features, retrieve-before-act, fine-tune corpus | contributes/consumes **navigation traces** (own-profile reach + post-shape); the apply entry point uses the same store for form-fill traces |
+| **Dynamic-site handling** | SPA re-renders, lazy/virtual lists, modals/cookie walls, a11y/role-tree targeting (`JOB-APPLICATION-AGENT.md` §9) | applied to **profile/post surfaces** |
 | **Generalization** | learn workflows not selectors; abstraction ladder; unknown → generalized strategy + save trace | generalize **"find MY profile + MY posts"** to unseen platforms (§2–§3) |
 | **HITL handoff** | CAPTCHA/login = detect & hand to human, never bypass | auth handoff for read access (no Submit gate — there is nothing to submit) |
-| **Platform classification** | host/DOM/network fingerprint cascade with confidence + evidence | classify a **social platform shell** (vs the job agent's ATS vendor) |
-| **Purpose / deliverable** | — | **own-authored posts → Layer-2 raw → résumé** (the job agent's deliverable is a filled application) |
+| **Platform classification** | host/DOM/network fingerprint cascade with confidence + evidence | classify a **social platform shell** (the apply entry point classifies ATS vendors) |
+| **Purpose / deliverable** | — | **own-authored posts → Layer-2 raw → résumé** (the apply entry point's deliverable is a filled application) |
 | **Identity reasoning** | — | "who am I / is this MY profile / is this Feed/Search?" navigation logic |
 | **Extraction** | — | own-post heuristics + vision fallback, dedupe, authored-by-me filter |
 
@@ -297,11 +303,12 @@ flowchart LR
 
 ## 9. Blocked on / open questions
 
-1. **⭐ Shared-vs-separate module boundary (CONFIRM WITH USER).** §0.4/§5 propose that the **browser
-   runtime + Action RAG are shared** between this scraper and the job agent, with **own-profile nav /
-   own-post extraction / résumé feed** as scraper-specific. **How much is truly one shared package vs
-   two siblings with a thin shared core is still undecided** — this is the headline open question to
-   settle before building.
+1. **✅ RESOLVED — Option A: ONE shared package, two entry points.** The browser-agent **core** +
+   **Action RAG** + dynamic-site handling + generalization live in a **single unified package**,
+   exposed via two entry points: `scrape-own-profile` (this résumé agent) and `apply-to-job` (the JOB
+   agent). Only the **profile-nav / own-post-extraction / résumé-feed** are this entry point's
+   specifics (mirrored by the apply-side specifics on the JOB entry point). It is **not** two siblings
+   over a thin core. See §0.4 and §5.
 2. **Per-platform ToS.** Each social platform's Terms on automated access differ. Same opt-in-after-
    review + kill-switch discipline as `JOB-APPLICATION-AGENT.md` §13 — who reviews each platform?
 3. **Login / credential handling.** The agent runs **inside the user's CDP-attached session** and
