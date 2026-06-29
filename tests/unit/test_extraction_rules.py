@@ -40,3 +40,9 @@ def test_keep_regex_filters_lines():
 
 def test_garbage_html_returns_empty():
     assert apply_rules("", ExtractionRule(source_id="x")) == ""
+
+
+def test_malformed_keep_regex_does_not_raise():
+    rule = ExtractionRule(source_id="x", keep_regex=["[unclosed"])
+    text = apply_rules(_HTML, rule)  # malformed pattern must not raise
+    assert "C++ compiler" in text   # falls back to unfiltered content

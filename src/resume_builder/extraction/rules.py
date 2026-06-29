@@ -80,6 +80,12 @@ def apply_rules(html: str, rule: ExtractionRule) -> str:
     else:
         text = "\n".join(_block_lines(root))
     if rule.keep_regex:
-        pats = [re.compile(p) for p in rule.keep_regex]
-        text = "\n".join(ln for ln in text.splitlines() if any(p.search(ln) for p in pats))
+        pats = []
+        for pattern in rule.keep_regex:
+            try:
+                pats.append(re.compile(pattern))
+            except re.error:
+                continue  # skip malformed patterns; never raise
+        if pats:
+            text = "\n".join(ln for ln in text.splitlines() if any(p.search(ln) for p in pats))
     return text.strip()
