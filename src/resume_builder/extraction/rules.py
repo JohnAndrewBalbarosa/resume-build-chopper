@@ -113,6 +113,7 @@ class ExtractionRuleEngine:
         fp = template_fingerprint(html)
         cached = self._cache.get(fp)
         if cached is not None:
+            cached.source_id = source_id
             return cached
         skeleton = build_skeleton(html)
         prompt = (

@@ -73,6 +73,7 @@ def test_engine_caches_by_fingerprint():
     assert llm.calls == 1
     assert r1.drop_selectors == ["header.nav"]
     assert r2.drop_selectors == ["header.nav"]
+    assert r2.source_id == "u2"  # cache hit must carry the current caller's source_id
     engine.rules_for("u3", _PAGE_DIFF)  # new shape → new call
     assert llm.calls == 2
 
