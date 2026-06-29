@@ -27,6 +27,15 @@ htmlcov/
 
 # Secrets / local env
 .env
+.env.local
+.env.*.local
+
+# Node / Next.js
+node_modules/
+.next/
+.next-dev*.log
+coverage/
+*.tsbuildinfo
 
 # OS / editor cruft
 .DS_Store
