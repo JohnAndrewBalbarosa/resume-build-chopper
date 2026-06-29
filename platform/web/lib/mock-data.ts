@@ -1,10 +1,10 @@
 import type { UserTier } from "./permissions";
 
 export const metrics = [
-  { label: "Total Members", value: "1,248", delta: "+84 this term" },
-  { label: "Active Members", value: "742", delta: "59.4% active" },
-  { label: "Inactive Registrants", value: "213", delta: "1 event away" },
-  { label: "Upcoming Live Events", value: "12", delta: "4 open seats" }
+  { label: "Total Members", value: "1,284", delta: "+12.4%", trend: "up" },
+  { label: "Active Members", value: "847", delta: "+8.1%", trend: "up" },
+  { label: "Inactive Members", value: "437", delta: "-3.2%", trend: "down" },
+  { label: "Upcoming Events", value: "14", delta: "+2", trend: "up" }
 ];
 
 export const kanbanEvents = {
@@ -43,11 +43,60 @@ export const skillRadar = [
   { skill: "Research", score: 81 }
 ];
 
+export const activityTrend = [
+  { day: "Mon", events: 2, contributions: 24 },
+  { day: "Tue", events: 1, contributions: 38 },
+  { day: "Wed", events: 3, contributions: 51 },
+  { day: "Thu", events: 2, contributions: 47 },
+  { day: "Fri", events: 4, contributions: 62 },
+  { day: "Sat", events: 5, contributions: 28 },
+  { day: "Sun", events: 3, contributions: 19 }
+];
+
+export const departmentLoad = [
+  { department: "Academics", open: 18, approved: 11 },
+  { department: "Engineering", open: 24, approved: 15 },
+  { department: "External", open: 13, approved: 9 },
+  { department: "Research", open: 17, approved: 12 },
+  { department: "Creatives", open: 11, approved: 8 }
+];
+
 export const barSkills = [
   { name: "Workshops", value: 18 },
   { name: "Projects", value: 9 },
   { name: "Peer Reviews", value: 14 },
   { name: "Mentoring", value: 7 }
+];
+
+export const approvalQueue = [
+  {
+    title: "FEU AI Hack Sprint sponsor brief",
+    department: "External Relations",
+    status: "Needs treasurer approval",
+    risk: "budget",
+    age: "2h"
+  },
+  {
+    title: "Vision Transformers venue request",
+    department: "Academic Affairs",
+    status: "Waiting for room confirmation",
+    risk: "venue",
+    age: "5h"
+  },
+  {
+    title: "NLP Filipino Languages partner post",
+    department: "Communications",
+    status: "Human copy review",
+    risk: "public",
+    age: "1d"
+  }
+];
+
+export const systemHealth = [
+  { label: "RLS policy coverage", value: "100%", tone: "good" },
+  { label: "AI drafts pending HITL", value: "7", tone: "warn" },
+  { label: "Leaderboard refresh", value: "42m", tone: "info" },
+  { label: "Public PII exposure", value: "0", tone: "good" }
 ];
 
 export const events = [

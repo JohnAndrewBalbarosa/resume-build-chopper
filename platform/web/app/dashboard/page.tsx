@@ -1,5 +1,5 @@
 import { DashboardCommandCenter } from "@/components/dashboard-command-center";
 
-export default function AdminDashboardPage() {
+export default function DashboardPage() {
   return <DashboardCommandCenter />;
 }
