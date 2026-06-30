@@ -1,6 +1,6 @@
 # `extraction/` — P2 Website-Agnostic Extraction
 
-Converts raw URLs and GitHub repo references into token-capped, structured
+Converts raw URLs and GitHub repo references into structured
 `CleanedSource` records that P3 (interpretation) can consume without knowledge
 of the original source format. The package handles two distinct paths: arbitrary
 websites (fetch → AI rule inference → apply → cap) and GitHub repositories (git-tree
@@ -9,6 +9,38 @@ walk at one of three scan depths).
 No LLM is required for the GitHub path. For websites, `ExtractionRuleEngine` calls
 the LLM once per unique DOM fingerprint and caches the result, so repeat visits to
 the same template class cost nothing.
+
+The multi-page agentic path is `AgenticCrawler`. It observes the rendered DOM, asks the AI to
+classify HTML regions as `ignore`, `extract`, `crawl`, or `extract_and_crawl`, executes those
+actions, validates the result, and gives the AI one revision attempt before using fallbacks.
+Crawler content is not token-capped; its consumer owns context policy.
+
+## Agentic crawler flow
+
+```mermaid
+flowchart TD
+    Seed[Main-page seed URL] --> Render[Rendered DOM via Playwright]
+    Render --> Observe[Tag inventory + attributes + text context + link samples]
+    Observe --> FP[Layout fingerprint]
+    FP -->|known| Rules[(Memory/local JSON rules)]
+    FP -->|new| Infer[AI assigns HTML-tag actions]
+    Infer --> Execute[Extract text + expose rule-permitted links]
+    Rules --> Execute
+    Execute --> Validate{Valid?}
+    Validate -->|no| Revise[One AI revision with validation errors]
+    Revise --> Execute
+    Validate -->|yes| Select[AI selects adaptive representative sample]
+    Select --> Safe[Same-domain + robots + GET + dedupe + bounds]
+    Safe --> Render
+    Revise -->|still invalid| Readability[Generic readability]
+    Readability --> Domain[Registered domain fallback]
+    Domain --> Failed[Mark failed]
+```
+
+On the seed page, link selection samples one representative useful page per useful main top-bar
+category. Deeper sampling adapts to content and distinct layouts within hard safety boundaries.
+Learned layouts and `latest-run.json` live under `out/crawler-rules/` by default; `LayoutStore` is
+the persistence seam for a future backend.
 
 ## Data flow
 

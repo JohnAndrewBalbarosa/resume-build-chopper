@@ -27,6 +27,7 @@ from .review.review_orchestrator import review_resume_text
 
 from .commands import auth_cmd as _auth_cmd
 from .commands import scrape_cmd as _scrape_cmd
+from .commands import crawl_cmd as _crawl_cmd
 
 app = typer.Typer(help="GitHub-aware role-targeted resume builder.", no_args_is_help=True)
 
@@ -35,6 +36,7 @@ masked_input = _auth_cmd.masked_input
 _apply_visual_env = _scrape_cmd._apply_visual_env
 scrape = _scrape_cmd.scrape
 scrape_all = _scrape_cmd.scrape_all
+crawl_site = _crawl_cmd.crawl_site
 
 
 def _collect_manual_cookies(vendor: str) -> dict[str, str]:
@@ -55,6 +57,7 @@ app.command()(login)
 app.command()(logout)
 app.command()(scrape)
 app.command("scrape-all")(scrape_all)
+app.command("crawl-site")(crawl_site)
 
 
 def _parse_formats(value: str) -> list[str]:

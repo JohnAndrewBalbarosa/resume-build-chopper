@@ -23,6 +23,7 @@ dependencies = [
     "pyyaml>=6.0",
     "requests>=2.32",
     "lxml>=5",
+    "playwright>=1.45",
 ]
 
 [project.optional-dependencies]

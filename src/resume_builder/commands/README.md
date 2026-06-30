@@ -12,6 +12,7 @@ flowchart TD
     CLI[cli.py Typer app] --> Build[build -> Pipeline.run]
     CLI --> Auth[auth_cmd: login / logout]
     CLI --> Scrape[scrape_cmd: scrape / scrape-all]
+    CLI --> Crawl[crawl_cmd: crawl-site]
     Auth --> SOC[[sources/social: auth, browser_login]]
     Scrape --> AGG[[sources/social: SocialAggregator]]
     Scrape --> CFG[(social.yaml -> ScrapeConfig)]
@@ -23,6 +24,7 @@ flowchart TD
 |---|---|
 | `auth_cmd.py` | `login` / `logout` for social vendors (session management) |
 | `scrape_cmd.py` | `scrape` / `scrape-all` — run the social aggregator standalone |
+| `crawl_cmd.py` | `crawl-site` - learn HTML actions and crawl an adaptive same-domain sample |
 | `utils.py` | Shared CLI helpers |
 
 ## Rules

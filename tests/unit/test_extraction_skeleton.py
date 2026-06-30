@@ -33,3 +33,16 @@ def test_fingerprint_ignores_text_but_tracks_shape():
 def test_skeleton_handles_garbage():
     assert build_skeleton("") == ""
     assert template_fingerprint("") == "empty"
+
+
+def test_fingerprint_ignores_volatile_state_and_content_length():
+    short = """
+    <html><body class="single-post postid-1234 active"><main id="content">
+      <article class="article"><p>Short.</p></article></main></body></html>
+    """
+    long = """
+    <html><body class="single-post postid-9876 current"><main id="content">
+      <article class="article"><p>Different.</p><p>More content.</p><p>More.</p></article>
+    </main></body></html>
+    """
+    assert template_fingerprint(short) == template_fingerprint(long)

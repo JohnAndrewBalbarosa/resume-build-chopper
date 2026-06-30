@@ -12,6 +12,18 @@ from .github_traversal import (
 from .models import CHARS_PER_TOKEN, DEFAULT_CAP_CHARS, DEFAULT_TOKEN_CAP, CleanedSource, apply_token_cap
 from .rules import ExtractionRuleEngine, apply_rules
 from .web import extract_website
+from .crawler import AgenticCrawler, DEFAULT_OBJECTIVE, PlaywrightPageFetcher, RobotsPolicy
+from .crawler_models import (
+    CrawlRun,
+    ExtractedPage,
+    HtmlTagRule,
+    LearnedLayout,
+    LinkCandidate,
+    LinkSelection,
+    NodeAction,
+)
+from .crawler_store import LayoutStore
+from .domain_fallbacks import build_default_domain_fallbacks
 
 __all__ = [
     "CleanedSource",
@@ -28,4 +40,17 @@ __all__ = [
     "SCAN_DEPTHS",
     "extract_website",
     "apply_token_cap",
+    "AgenticCrawler",
+    "DEFAULT_OBJECTIVE",
+    "PlaywrightPageFetcher",
+    "RobotsPolicy",
+    "CrawlRun",
+    "ExtractedPage",
+    "HtmlTagRule",
+    "LearnedLayout",
+    "LinkCandidate",
+    "LinkSelection",
+    "NodeAction",
+    "LayoutStore",
+    "build_default_domain_fallbacks",
 ]
