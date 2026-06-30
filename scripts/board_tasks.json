@@ -889,7 +889,7 @@
     },
     {
       "title": "Q.30 Fix 2 broken legacy test imports (test_cli, test_manual_cookies)",
-      "stage": "Todo",
+      "stage": "In Review",
       "role": "QA",
       "group": "Quality & Security",
       "body": "🎯 Goal: green collection on the full suite.\n📦 Scope: test_cli.py imports _apply_visual_env/app and test_manual_cookies imports _VENDOR_COOKIES — names that moved during refactor. Update imports.\n✔ Acceptance: pytest collects with 0 errors.\n👤 HITL: QA review.\n🔗 Depends: none (quick win)",
