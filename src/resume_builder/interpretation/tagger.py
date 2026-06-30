@@ -16,7 +16,8 @@ _TAGGER_SYSTEM = (
 
 
 class ProjectTagger:
-    """Tags a single RetrievedSource into a TaggedProject. Never raises."""
+    """Tags a single RetrievedSource into a TaggedProject. Raises on LLM/parse failure —
+    ParallelTagRunner owns per-source isolation (bounded retry + tracked miss)."""
 
     def __init__(self, llm: LLMProvider) -> None:
         self._llm = llm
@@ -28,11 +29,8 @@ class ProjectTagger:
             "Return the tagged record (industries, skill_subtags, summary, "
             "quantitative_impact, qualitative_impact)."
         )
-        try:
-            tagged = self._llm.structured(
-                prompt, schema=TaggedProject, system=_TAGGER_SYSTEM, max_tokens=1024
-            )
-        except Exception:  # noqa: BLE001 — any LLM/parse failure degrades to an empty tag
-            tagged = TaggedProject(repo_full_name=source.source_id)
+        tagged = self._llm.structured(
+            prompt, schema=TaggedProject, system=_TAGGER_SYSTEM, max_tokens=1024
+        )
         tagged.repo_full_name = source.source_id
         return tagged

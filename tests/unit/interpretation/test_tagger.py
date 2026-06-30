@@ -33,12 +33,12 @@ def test_tag_returns_tagged_project_with_source_id():
     assert tp.industries == ["artificial intelligence"]
 
 
-def test_tag_falls_back_to_empty_on_llm_error():
+def test_tag_raises_on_llm_error_for_runner_to_handle():
+    import pytest
+
     class _Boom:
         def structured(self, *a, **k):
             raise RuntimeError("boom")
 
-    tp = ProjectTagger(_Boom()).tag(
-        RetrievedSource(source_id="s1", kind="post", text="x")
-    )
-    assert tp.repo_full_name == "s1" and tp.industries == []
+    with pytest.raises(RuntimeError):
+        ProjectTagger(_Boom()).tag(RetrievedSource(source_id="s1", kind="post", text="x"))

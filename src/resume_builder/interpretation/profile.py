@@ -1,3 +1,4 @@
+"""Profile builder and persistence sink for the P3 engine (skills + industry tags)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,8 +9,7 @@ from .models import UserProfile
 
 def build_user_profile(classification: IndustryClassification) -> UserProfile:
     """The profile catcher: only skills + industry tags (no source links stored)."""
-    industries = _dedupe([*classification.normalized_industries,
-                          *(i for p in classification.projects for i in p.industries)])
+    industries = _dedupe(classification.normalized_industries)
     skills = _dedupe(s for p in classification.projects for s in p.skill_subtags)
     return UserProfile(skills=skills, industries=industries)
 

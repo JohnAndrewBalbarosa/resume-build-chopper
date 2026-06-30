@@ -49,3 +49,15 @@ def test_run_reports_permanent_failure_without_dropping_silently():
 def test_run_empty_input():
     results, report = ParallelTagRunner(_CountingTagger()).run([])
     assert results == [] and report.sent == 0 and report.failed == 0
+
+
+def test_runner_tracks_real_tagger_llm_failure():
+    from resume_builder.interpretation.tagger import ProjectTagger
+
+    class _BoomLLM:
+        def structured(self, *a, **k):
+            raise RuntimeError("llm down")
+
+    runner = ParallelTagRunner(ProjectTagger(_BoomLLM()), max_retries=1)
+    results, report = runner.run([_src("a"), _src("b")])
+    assert results == [] and report.failed == 2 and set(report.failures) == {"a", "b"}

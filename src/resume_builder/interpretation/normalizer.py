@@ -45,15 +45,17 @@ class GlobalNormalizer:
 
     def normalize(self, projects: list[TaggedProject]) -> IndustryClassification:
         amap = self._alias_map(projects)
+        industry_map = {k.strip().lower(): v for k, v in amap.industry_map.items()}
+        skill_map = {k.strip().lower(): v for k, v in amap.skill_map.items()}
         rewritten: list[TaggedProject] = []
         for p in projects:
             rewritten.append(
                 p.model_copy(
                     update={
                         "industries": _dedupe(
-                            _apply(i, amap.industry_map) for i in p.industries
+                            _apply(i, industry_map) for i in p.industries
                         ),
-                        "skill_subtags": _dedupe(_apply(s, amap.skill_map) for s in p.skill_subtags),
+                        "skill_subtags": _dedupe(_apply(s, skill_map) for s in p.skill_subtags),
                     }
                 )
             )
