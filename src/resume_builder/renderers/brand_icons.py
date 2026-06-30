@@ -114,7 +114,7 @@ def declutter(url: str | None, provider_hint: str = "") -> tuple[str | None, str
         if hint == "linkedin":
             return ("linkedin", url.lstrip("/") or None)
         if hint == "facebook":
-            return ("facebook", None)
+            return ("facebook", url.lstrip("/") or None)
         return (hint or "website", url)
 
     cleaned = re.sub(r"^https?://", "", url.strip(), flags=re.IGNORECASE)

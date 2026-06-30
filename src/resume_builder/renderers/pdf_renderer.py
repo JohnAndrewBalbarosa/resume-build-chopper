@@ -134,15 +134,11 @@ class PdfRenderer(Renderer):
         )
         story.append(Paragraph(role_label, h1))
 
-        # Name + location → secondary muted line
-        name_parts = [p for p in [resume.contact.name, resume.contact.location] if p]
-        if name_parts:
-            story.append(Paragraph(" &middot; ".join(name_parts), name_style))
-
-        # Contact links: each branded link → [icon Drawing | handle Paragraph] in a Table row
-        _icon_w = 12    # points — icon cell width
-        _text_w = 88    # points — handle text cell width
-        _sep_w = 8      # points — separator cell width
+        # Single contact line: name (bold) · email · phone · github · linkedin · facebook
+        # Location/address is intentionally omitted from the header.
+        _icon_w = 10    # points — icon cell width
+        _text_w = 72    # points — handle text cell width
+        _sep_w = 6      # points — separator cell width
 
         contact_cells: list = []
         contact_col_widths: list[float] = []
@@ -176,16 +172,39 @@ class PdfRenderer(Renderer):
             contact_cells.append(link_p)
             contact_col_widths.append(_text_w)
 
+        def _add_nolink(provider: str, username: str) -> None:
+            """Add a branded icon + plain text (no hyperlink). Used for Facebook."""
+            if not username:
+                return
+            d = bi_drawing(provider, size=9)
+            plain_p = Paragraph(username, contact_style)
+            if contact_cells:
+                _add_sep()
+            if d is not None:
+                contact_cells.append(d)
+                contact_col_widths.append(_icon_w)
+            contact_cells.append(plain_p)
+            contact_col_widths.append(_text_w)
+
+        # Name is always the first item on the contact line (bold).
+        if resume.contact.name:
+            contact_cells.append(Paragraph(f"<b>{resume.contact.name}</b>", contact_style))
+            contact_col_widths.append(100)
+
         if resume.contact.email:
-            _add_plain(resume.contact.email, width=130)
+            if contact_cells:
+                _add_sep()
+            _add_plain(resume.contact.email, width=110)
         if resume.contact.phone:
             if contact_cells:
                 _add_sep()
-            _add_plain(resume.contact.phone, width=85)
+            _add_plain(resume.contact.phone, width=78)
         if resume.contact.github:
             _add_link("github", resume.contact.github, "https://github.com/")
         if resume.contact.linkedin:
             _add_link("linkedin", resume.contact.linkedin, "https://www.linkedin.com/in/")
+        if resume.contact.facebook:
+            _add_nolink("facebook", resume.contact.facebook)
         if resume.contact.website:
             _add_link("website", resume.contact.website, "https://")
 

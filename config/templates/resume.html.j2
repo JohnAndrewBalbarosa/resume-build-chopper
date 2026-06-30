@@ -25,24 +25,19 @@
     max-width:var(--maxw); margin:18px auto; background:var(--bg);
     padding:14mm 16mm; box-shadow:0 1px 6px rgba(20,24,29,.12);
   }
-  /* ---- header: role label is the dominant element; candidate name is secondary ---- */
+  /* ---- header: role label is the dominant element; name + contacts on one line ---- */
   header{border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:4px;}
   .role-title{
     font-family:"Helvetica Neue",Arial,system-ui,sans-serif;
     font-size:23pt; font-weight:700; letter-spacing:.04em;
     text-transform:uppercase; color:var(--ink); margin:0 0 3px; line-height:1.1;
   }
-  .identity{
-    font-family:"Helvetica Neue",Arial,sans-serif; font-size:11pt;
-    font-weight:500; color:var(--muted); letter-spacing:.01em; margin:0 0 7px;
-  }
-  .identity .name{color:var(--ink); font-weight:600;}
-  .identity .sep{color:var(--faint);}
   .contact{
     font-family:"Helvetica Neue",Arial,sans-serif; font-size:9pt;
-    color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 14px;
-    align-items:center;
+    color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px;
+    align-items:center; margin-top:4px;
   }
+  .contact .name{color:var(--ink); font-weight:700; font-size:11pt; line-height:1.1;}
   .contact a{color:var(--muted); text-decoration:none; display:inline-flex; align-items:center; gap:3px;}
   .contact a:hover{color:var(--accent);}
   .contact .sep{color:var(--faint);}
@@ -120,13 +115,11 @@
 <main class="sheet">
 
   <header>
-    {# Role label is the dominant heading; name is secondary/muted info. #}
+    {# Role label is the dominant heading; name + all contact info on a single line below. #}
     <h1 class="role-title">{{ (resume.role.label if resume.role and resume.role.label else None) or "Your Target Role" }}</h1>
-    <div class="identity">
-      <span class="name">{{ resume.contact.name or "Your Name" }}</span>{% if resume.contact.location %}<span class="sep"> · </span>{{ resume.contact.location }}{% endif %}
-    </div>
     <div class="contact">
-      {% if resume.contact.email %}<span>{{ resume.contact.email }}</span>{% endif %}
+      <span class="name">{{ resume.contact.name or "Your Name" }}</span>
+      {% if resume.contact.email %}<span class="sep">·</span><span>{{ resume.contact.email }}</span>{% endif %}
       {% if resume.contact.phone %}<span class="sep">·</span><span>{{ resume.contact.phone }}</span>{% endif %}
       {% if resume.contact.github %}
         {% set _gh = declutter_link(resume.contact.github, "github") %}
@@ -137,6 +130,10 @@
         {% set _li = declutter_link(resume.contact.linkedin, "linkedin") %}
         <span class="sep">·</span>
         <a href="{{ resume.contact.linkedin if resume.contact.linkedin.startswith('http') else 'https://www.linkedin.com/in/' ~ resume.contact.linkedin }}">{{ brand_svg("linkedin", 11) }}<span>{{ _li[1] or resume.contact.linkedin }}</span></a>
+      {% endif %}
+      {% if resume.contact.facebook %}
+        <span class="sep">·</span>
+        <span>{{ brand_svg("facebook", 11) }}{{ resume.contact.facebook }}</span>
       {% endif %}
       {% if resume.contact.website %}
         {% set _ws = declutter_link(resume.contact.website, "website") %}

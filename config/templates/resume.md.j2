@@ -3,8 +3,7 @@
 {% set _gh_link = declutter_link(resume.contact.github, "github") if resume.contact.github else None %}
 {% set _li_link = declutter_link(resume.contact.linkedin, "linkedin") if resume.contact.linkedin else None %}
 {% set _ws_link = declutter_link(resume.contact.website, "website") if resume.contact.website else None %}
-**{{ resume.contact.name or "Your Name" }}**{% if resume.contact.location %} · {{ resume.contact.location }}{% endif +%}
-{% if resume.contact.email %}{{ resume.contact.email }}{% endif %}{% if resume.contact.phone %} · {{ resume.contact.phone }}{% endif %}{% if _gh_link %}{% if resume.contact.email or resume.contact.phone %} · {% endif %}[github/{{ _gh_link[1] or '' }}]({{ resume.contact.github if resume.contact.github.startswith('http') else 'https://github.com/' ~ resume.contact.github }}){% endif %}{% if _li_link %} · [linkedin/{{ _li_link[1] or '' }}]({{ resume.contact.linkedin if resume.contact.linkedin.startswith('http') else 'https://www.linkedin.com/in/' ~ resume.contact.linkedin }}){% endif %}{% if _ws_link %} · [{{ _ws_link[1] or resume.contact.website }}]({{ resume.contact.website }}){% endif +%}
+**{{ resume.contact.name or "Your Name" }}**{% if resume.contact.email %} · {{ resume.contact.email }}{% endif %}{% if resume.contact.phone %} · {{ resume.contact.phone }}{% endif %}{% if _gh_link %} · [github/{{ _gh_link[1] or '' }}]({{ resume.contact.github if resume.contact.github.startswith('http') else 'https://github.com/' ~ resume.contact.github }}){% endif %}{% if _li_link %} · [linkedin/{{ _li_link[1] or '' }}]({{ resume.contact.linkedin if resume.contact.linkedin.startswith('http') else 'https://www.linkedin.com/in/' ~ resume.contact.linkedin }}){% endif %}{% if resume.contact.facebook %} · facebook/{{ resume.contact.facebook }}{% endif %}{% if _ws_link %} · [{{ _ws_link[1] or resume.contact.website }}]({{ resume.contact.website }}){% endif +%}
 
 ---
 

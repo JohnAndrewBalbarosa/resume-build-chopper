@@ -119,7 +119,7 @@ class AISynthesizer(Synthesizer):
 
 def _merge_contact(primary: ContactInfo, fallback: ContactInfo) -> ContactInfo:
     out = primary.model_copy()
-    for field in ("name", "email", "phone", "location", "website", "github", "linkedin"):
+    for field in ("name", "email", "phone", "location", "website", "github", "linkedin", "facebook"):
         if not getattr(out, field):
             setattr(out, field, getattr(fallback, field))
     return out

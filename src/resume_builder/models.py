@@ -89,6 +89,7 @@ class ContactInfo(BaseModel):
     website: str | None = None
     github: str | None = None
     linkedin: str | None = None
+    facebook: str | None = None
 
 
 class ResumeProject(BaseModel):

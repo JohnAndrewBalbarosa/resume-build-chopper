@@ -309,6 +309,88 @@ def test_pdf_project_link_no_raw_url_smoke(templates_dir):
     assert b"https://github.com/o/r" not in pdf or b"<https://github.com/o/r>" not in pdf
 
 
+def _resume_with_all_contacts() -> Resume:
+    """Resume with github + linkedin + facebook + location.
+
+    Location should be ABSENT from the rendered header; name must appear IN the
+    contact line; all three brand icons (github, linkedin, facebook) must show.
+    """
+    return Resume(
+        role=RoleSpec(id="r", label="Full Stack Developer", keywords=[]),
+        contact=ContactInfo(
+            name="John Doe",
+            email="john@example.com",
+            phone="+1-555-1234",
+            location="Manila, PH",  # must NOT appear in header output
+            github="https://github.com/johndoe",
+            linkedin="https://www.linkedin.com/in/johndoe",
+            facebook="john.doe.58",
+        ),
+        summary="A developer.",
+        skills=["Python"],
+    )
+
+
+def test_html_contact_has_github_linkedin_facebook_icons(templates_dir):
+    """HTML contact line must contain SVG icons for github, linkedin, and facebook."""
+    from resume_builder.renderers.html_renderer import HtmlRenderer
+    html = HtmlRenderer(templates_dir).render(_resume_with_all_contacts())
+    # Each brand's unique fill colour must appear (proves the SVG is present).
+    assert "#181717" in html, "GitHub brand icon (fill #181717) not found in HTML"
+    assert "#0A66C2" in html, "LinkedIn brand icon (fill #0A66C2) not found in HTML"
+    assert "#1877F2" in html, "Facebook brand icon (fill #1877F2) not found in HTML"
+    # At least 3 SVG elements (github, linkedin, facebook).
+    assert html.count("<svg") >= 3, f"Expected ≥3 <svg> elements, found {html.count('<svg')}"
+
+
+def test_html_contact_facebook_no_href(templates_dir):
+    """HTML contact: facebook username shown as plain text, never wrapped in <a href>."""
+    from resume_builder.renderers.html_renderer import HtmlRenderer
+    import re
+    html = HtmlRenderer(templates_dir).render(_resume_with_all_contacts())
+    # Username text is present.
+    assert "john.doe.58" in html
+    # No anchor pointing to facebook.com.
+    fb_hrefs = re.findall(r'href="[^"]*facebook\.com[^"]*"', html)
+    assert not fb_hrefs, f"Unexpected Facebook href(s) in HTML contact: {fb_hrefs}"
+
+
+def test_html_contact_name_in_contact_line(templates_dir):
+    """HTML: candidate name appears inside the .contact div (single contact line)."""
+    from resume_builder.renderers.html_renderer import HtmlRenderer
+    html = HtmlRenderer(templates_dir).render(_resume_with_all_contacts())
+    # Name is in the contact section with class="name".
+    assert 'class="name"' in html
+    assert "John Doe" in html
+
+
+def test_html_contact_no_location_in_header(templates_dir):
+    """HTML header must NOT contain the contact location/address."""
+    from resume_builder.renderers.html_renderer import HtmlRenderer
+    html = HtmlRenderer(templates_dir).render(_resume_with_all_contacts())
+    assert "Manila, PH" not in html, "Location must not appear anywhere in the HTML output"
+
+
+def test_md_contact_facebook_plain_text(templates_dir):
+    """Markdown: facebook appears as plain text (facebook/{username}), NOT a hyperlink."""
+    md = MarkdownRenderer(templates_dir).render(_resume_with_all_contacts())
+    assert "facebook/john.doe.58" in md, "facebook/username must appear in MD output"
+    # Must NOT be a markdown link [text](url).
+    assert "[facebook/john.doe.58](" not in md, "Facebook contact must not be a hyperlink in MD"
+
+
+def test_md_contact_no_location(templates_dir):
+    """Markdown header must NOT contain the contact location/address."""
+    md = MarkdownRenderer(templates_dir).render(_resume_with_all_contacts())
+    assert "Manila, PH" not in md, "Location must not appear in the MD header"
+
+
+def test_md_contact_name_in_contact_line(templates_dir):
+    """Markdown: name appears bolded in the single contact line."""
+    md = MarkdownRenderer(templates_dir).render(_resume_with_all_contacts())
+    assert "**John Doe**" in md
+
+
 def test_json_renderer_includes_contact_links():
     """JSON output must include a top-level contact_links array."""
     import json as _json

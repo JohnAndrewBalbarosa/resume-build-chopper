@@ -144,6 +144,59 @@ _EXTRACT_OWN_POSTS_JS = r"""
 """
 
 
+def extract_handle_from_url(url: str | None) -> str | None:
+    """Extract the vanity username from a facebook.com profile URL.
+
+    Returns None for numeric-only profile IDs (``profile.php?id=...``), for
+    URLs that point to posts/events/groups/pages rather than profiles, and for
+    non-Facebook or empty inputs.
+
+    Examples::
+
+        extract_handle_from_url("https://www.facebook.com/johnandrew.balbarosa.58")
+        # → "johnandrew.balbarosa.58"
+
+        extract_handle_from_url("https://www.facebook.com/profile.php?id=100000123")
+        # → None
+
+    This is how ``ContactInfo.facebook`` should be auto-populated during a social
+    scrape — the handle is sourced from the authenticated session redirect, not
+    requested from the user.
+    """
+    if not url or "facebook.com" not in url.lower():
+        return None
+
+    # Strip query string and fragment; normalise trailing slash.
+    url_clean = url.split("?")[0].split("#")[0].rstrip("/")
+
+    # Numeric profile.php fallback → no vanity username available.
+    if "profile.php" in url_clean.lower():
+        return None
+
+    # Extract the path segment after facebook.com/
+    low = url_clean.lower()
+    if "facebook.com/" not in low:
+        return None
+    path = url_clean.split("facebook.com/", 1)[1].lstrip("/")
+
+    if not path:
+        return None
+
+    # Reject purely numeric paths (raw user IDs with no vanity username).
+    if path.isdigit():
+        return None
+
+    # Reject known non-profile paths (posts, media, events, groups, pages …).
+    if re.search(
+        r"(posts|permalink|photo|videos|events|pages|groups|search|story\.php)",
+        path,
+        re.IGNORECASE,
+    ):
+        return None
+
+    return path
+
+
 def _snapshot_article(element) -> dict:
     """Extract a stable plain-dict snapshot of a single FB article element.
 
@@ -259,6 +312,39 @@ class FacebookVendor(SocialVendor):
         self._has_storage_state = self._store.load_storage_state("facebook") is not None
 
     # ---- public ----
+
+    def resolve_own_handle(self) -> str | None:
+        """Navigate to facebook.com/me with the authenticated session and return the vanity username.
+
+        Facebook redirects ``/me`` to the user's actual profile URL.  The vanity
+        path segment (e.g. ``"johnandrew.balbarosa.58"``) is extracted from the
+        final URL via :func:`extract_handle_from_url` and returned.
+
+        Numeric-only profile IDs (``profile.php?id=...``) return ``None`` — the
+        account has no vanity username set.
+
+        This is the canonical way to auto-populate ``ContactInfo.facebook`` during
+        a social scrape so the value is sourced from the connected authenticated
+        session rather than being asked from the user interactively.
+        """
+        if not self._has_storage_state:
+            log.warning(
+                "resolve_own_handle: no stored Facebook session; "
+                "run 'resume-build login' first."
+            )
+            return None
+        try:
+            with PlaywrightSession("facebook", headless=False, store=self._store) as page:
+                page.goto(
+                    "https://www.facebook.com/me",
+                    wait_until="networkidle",
+                    timeout=20_000,
+                )
+                final_url = page.url
+            return extract_handle_from_url(final_url)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("resolve_own_handle failed: %s", exc)
+            return None
 
     def fetch_own_posts(self, handle: str, limit: int = 50) -> list[SocialPost]:
         if self._prefer_headless and self._has_storage_state:
