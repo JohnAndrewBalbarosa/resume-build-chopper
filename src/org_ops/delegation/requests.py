@@ -29,12 +29,18 @@ class ChangeControlBoard:
             if node is not None and "responsibilities" in req.payload:
                 node.responsibilities = list(req.payload["responsibilities"])
         elif req.kind == "add":
+            node_id = req.payload.get("id")
+            parent = self.tree.nodes.get(req.parent_id)
+            if not node_id or parent is None:
+                return req.model_copy(update={
+                    "status": "rejected",
+                    "reason": "add requires a valid 'id' payload and an existing parent",
+                })
             new = DelegationNode(
-                id=req.payload["id"], level=Level(req.payload.get("level", "task")),
+                id=node_id, level=Level(req.payload.get("level", "task")),
                 title=req.payload.get("title", ""), owner_role=req.payload.get("owner_role", ""),
             )
             self.tree.add(new)
-            parent = self.tree.nodes.get(req.parent_id)
-            if parent is not None and new.id not in parent.children:
+            if new.id not in parent.children:
                 parent.children.append(new.id)
         return req.model_copy(update={"status": "approved", "reason": reason})

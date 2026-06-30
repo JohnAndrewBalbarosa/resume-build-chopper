@@ -30,3 +30,21 @@ def test_ccb_reject_does_not_mutate():
     done = ccb.decide(req, approve=False, reason="out of scope")
     assert done.status == "rejected" and done.reason == "out of scope"
     assert ccb.tree.nodes["root.A"].responsibilities == ["old"]  # unchanged
+
+
+def test_ccb_approve_add_wires_child():
+    ccb = ChangeControlBoard(_tree())
+    req = ccb.submit("root.A.new", "root.A", "add",
+                     {"id": "root.A.new", "level": "task", "title": "T", "owner_role": "JO"})
+    done = ccb.decide(req, approve=True)
+    assert done.status == "approved"
+    assert "root.A.new" in ccb.tree.nodes
+    assert "root.A.new" in ccb.tree.nodes["root.A"].children
+
+
+def test_ccb_add_missing_parent_degrades_without_orphan():
+    ccb = ChangeControlBoard(_tree())
+    req = ccb.submit("x", "nope", "add", {"id": "x", "level": "task"})
+    done = ccb.decide(req, approve=True)
+    assert done.status == "rejected"
+    assert "x" not in ccb.tree.nodes  # nothing orphaned
