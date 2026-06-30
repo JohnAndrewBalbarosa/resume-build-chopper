@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 import re
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import lxml.html
 
 from .crawler_models import HtmlTagRule, LinkCandidate, NodeAction
-from .skeleton import template_fingerprint
+from .skeleton import _stable_dom_token
 
 _SKIP_SCHEMES = ("mailto:", "tel:", "javascript:", "data:")
 _DANGEROUS = re.compile(
@@ -58,7 +59,13 @@ def _matches(el, selector: str) -> bool:
 
 
 def build_dom_inventory(html: str, base_url: str, max_nodes: int = 500) -> str:
-    """Agent observation containing selectors, tag context, and link-bearing structure."""
+    """Agent observation containing selectors, tag context, and link-bearing structure.
+
+    Each link sample carries the anchor's NAME (its visible text), not just the URL:
+    the AI decides whether a link is worth crawling by what it is called, so the name
+    is the relevance signal. We keep these names verbosely on purpose — the extra
+    tokens buy a more accurate, structure-true link-selection decision.
+    """
     root = _parse(html)
     if root is None:
         return ""
@@ -66,15 +73,14 @@ def build_dom_inventory(html: str, base_url: str, max_nodes: int = 500) -> str:
     for el in root.iter():
         if not isinstance(el.tag, str):
             continue
-        links = []
-        if el.tag.lower() == "a" and el.get("href"):
-            links.append(urljoin(base_url, el.get("href")))
-        else:
-            links.extend(
-                urljoin(base_url, a.get("href"))
-                for a in el.iterdescendants("a")
-                if a.get("href")
-            )
+        anchors = [el] if el.tag.lower() == "a" else list(el.iterdescendants("a"))
+        link_samples: list[str] = []
+        for anchor in anchors:
+            href = anchor.get("href")
+            if not href:
+                continue
+            anchor_text = " ".join(t.strip() for t in anchor.itertext() if t.strip())[:80]
+            link_samples.append(f"{anchor_text or '(no text)'!r}->{urljoin(base_url, href)}")
         text = " ".join(t.strip() for t in el.itertext() if t.strip())[:120]
         attrs = []
         for name in ("id", "class", "role", "aria-label"):
@@ -85,8 +91,8 @@ def build_dom_inventory(html: str, base_url: str, max_nodes: int = 500) -> str:
             line += " " + " ".join(attrs)
         if text:
             line += f" text={text!r}"
-        if links:
-            line += f" descendant_links={len(links)} samples={links[:4]!r}"
+        if link_samples:
+            line += f" descendant_links={len(link_samples)} samples=[{', '.join(link_samples[:6])}]"
         lines.append(line)
         if len(lines) >= max_nodes:
             break
@@ -181,5 +187,41 @@ def readability_text(html: str) -> str:
 
 
 def fingerprint(html: str) -> str:
-    return template_fingerprint(html, max_nodes=400)
+    """Strict layout cache key built from the page's full stable CSS vocabulary.
+
+    Two pages share a fingerprint ONLY when their entire set of stable
+    ``tag#id`` / ``tag.class`` / ``tag[role]`` selectors is identical. A page is
+    therefore assumed to be a *different* layout — a cache miss that re-asks the
+    AI — unless it is an exact structural match. We deliberately do NOT guess
+    "layout families" from coarse structural landmarks: that heuristic could
+    collide two genuinely different page types and replay the wrong learned
+    rules. Accuracy and structure-trueness are preferred over saving tokens, so
+    anything short of an exact vocabulary hit falls through to fresh AI inference.
+
+    Volatile, content-specific tokens (numeric ids, UUIDs, active/selected state)
+    are filtered by ``_stable_dom_token`` so the same template still matches
+    across pages whose only difference is their content.
+    """
+    root = _parse(html)
+    if root is None:
+        return "empty"
+    vocab: set[str] = set()
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        tag = el.tag.lower()
+        element_id = el.get("id") or ""
+        if _stable_dom_token(element_id):
+            vocab.add(f"{tag}#{element_id}")
+        for cls in (el.get("class") or "").split():
+            if _stable_dom_token(cls):
+                vocab.add(f"{tag}.{cls}")
+        role = el.get("role") or ""
+        if role:
+            vocab.add(f"{tag}[role={role}]")
+    if not vocab:
+        # No class/id/role signal at all: fall back to the bare tag set so two
+        # structurally identical class-less pages can still share a cache entry.
+        vocab = {el.tag.lower() for el in root.iter() if isinstance(el.tag, str)}
+    return hashlib.sha1("|".join(sorted(vocab)).encode("utf-8")).hexdigest()
 

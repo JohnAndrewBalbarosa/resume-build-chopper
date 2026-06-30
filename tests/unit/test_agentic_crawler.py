@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from resume_builder.extraction.crawler import AgenticCrawler, RobotsPolicy
-from resume_builder.extraction.crawler_dom import apply_tag_rules, build_dom_inventory
+from resume_builder.extraction.crawler_dom import apply_tag_rules, build_dom_inventory, fingerprint
 from resume_builder.extraction.crawler_models import (
     HtmlTagRule,
     LearnedLayout,
@@ -99,6 +99,85 @@ def test_dom_inventory_exposes_tags_selectors_and_link_samples():
     assert "selector='header.topbar'" in inventory
     assert "descendant_links=4" in inventory
     assert "https://example.com/projects" in inventory
+
+
+def test_dom_inventory_carries_link_names_for_relevance_judgement():
+    # The AI must be able to judge a link by its NAME, not just its URL.
+    inventory = build_dom_inventory(_HOME, "https://example.com/")
+    assert "'Projects'->https://example.com/projects" in inventory
+    assert "'About'->https://example.com/about" in inventory
+
+
+def test_fingerprint_is_strict_about_class_vocabulary():
+    base = "<html><body><main class='content'><p>{}</p></main></body></html>"
+    same_vocab_a = base.format("alpha alpha alpha alpha alpha")
+    same_vocab_b = base.format("totally different content here entirely")
+    different_vocab = "<html><body><section class='panel'><p>x</p></section></body></html>"
+    # identical stable vocabulary, different text => same cache key
+    assert fingerprint(same_vocab_a) == fingerprint(same_vocab_b)
+    # any vocabulary difference => assumed a different layout (cache miss)
+    assert fingerprint(same_vocab_a) != fingerprint(different_vocab)
+
+
+def test_repeated_layout_is_served_from_cache_without_new_llm_calls():
+    home = (
+        "<html><body><header class='topbar'>"
+        "<a href='/a'>Alpha</a><a href='/b'>Beta</a></header>"
+        "<main class='content'><h1>Home</h1><p>"
+        + "Home page evidence describing measurable engineering work. " * 4
+        + "</p></main></body></html>"
+    )
+    page_a = (
+        "<html><body><header class='topbar'>"
+        "<a href='/a'>Alpha</a><a href='/b'>Beta</a></header>"
+        "<main class='content'><h1>Alpha</h1><p>"
+        + "Alpha page evidence describing a different shipped project entirely. " * 4
+        + "</p></main></body></html>"
+    )
+    pages = {"https://example.com/": home, "https://example.com/a": page_a}
+
+    class _CountingLLM:
+        def __init__(self) -> None:
+            self.rule_calls = 0
+            self.link_calls = 0
+
+        def structured(self, prompt, schema, system=None, max_tokens=2048):
+            if schema is LinkSelection:
+                self.link_calls += 1
+                return LinkSelection(
+                    links=[LinkChoice(url="https://example.com/a", category="Alpha")]
+                )
+            self.rule_calls += 1
+            return LearnedLayout(
+                domain="x",
+                sample_url="x",
+                layout_fingerprint="x",
+                rules=[
+                    HtmlTagRule(selector="header.topbar", action=NodeAction.CRAWL),
+                    HtmlTagRule(selector="main.content", action=NodeAction.EXTRACT),
+                ],
+            )
+
+    llm = _CountingLLM()
+    crawler = AgenticCrawler(
+        llm,
+        fetch_page=pages.__getitem__,
+        store=LayoutStore(output_dir=None),
+        robots=_RobotsAllow(),
+        max_depth=1,
+        max_pages=5,
+    )
+    run = crawler.crawl("https://example.com/")
+
+    assert [p.url for p in run.extracted_pages] == [
+        "https://example.com/",
+        "https://example.com/a",
+    ]
+    # /a shares the seed's exact class vocabulary => one fingerprint => the AI
+    # learns the layout ONCE; the second page is replayed in pure Python.
+    assert llm.rule_calls == 1
+    assert run.extracted_pages[1].extraction_method == "ai_rules_cache"
+    assert len(run.learned_layouts) == 1
 
 
 def test_tag_actions_control_content_and_crawl_links():
