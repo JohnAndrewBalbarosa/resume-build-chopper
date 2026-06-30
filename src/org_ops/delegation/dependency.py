@@ -29,11 +29,9 @@ class DependencyAnalyzer:
         prompt = f"Event: {tree.event}\nNodes:\n{listing}\n\nReturn suggested dependency edges."
         try:
             result = self._llm.structured(prompt, schema=_EdgeList, system=_SYSTEM, max_tokens=1024)
-        except Exception:  # noqa: BLE001
+            return [e.model_copy(update={"confirmed": None}) for e in result.items]
+        except Exception:  # noqa: BLE001 — any LLM/parse failure yields no suggestions
             return []
-        for e in result.items:
-            e.confirmed = None  # always unreviewed when freshly suggested
-        return result.items
 
 
 def confirmed_edges(edges: list[DependencyEdge]) -> list[DependencyEdge]:

@@ -41,3 +41,12 @@ def test_blocked_and_independent_use_confirmed_edges_only():
     # unconfirmed edges are ignored
     unconfirmed = [DependencyEdge(src="b", dst="a", kind=EdgeType.CROSS_SIBLING)]
     assert blocked_nodes(t, unconfirmed) == []
+    assert set(independent_nodes(t, unconfirmed)) == {"a", "b"}
+
+
+def test_suggest_returns_empty_on_llm_error():
+    class _ErrorLLM:
+        def structured(self, *a, **k):
+            raise RuntimeError("network timeout")
+
+    assert DependencyAnalyzer(_ErrorLLM()).suggest(_tree()) == []
