@@ -1718,6 +1718,22 @@
       "estimate": 3,
       "milestone": "Platform & Intelligence — Wk2",
       "assignee": ""
+    },
+    {
+      "title": "Make usage counters concurrency-safe (atomic increment)",
+      "stage": "Backlog",
+      "role": "Database",
+      "group": "Profiles & Analytics",
+      "body": "Future fix for the aggregate usage counters (downloads, pages_scraped).\n\nPROBLEM: metrics/usage_counter.py increment() is a read-modify-write on a JSON file. Concurrent +1 calls can read the same value and lose an update (classic lost-update race). Shipped intentionally as frontend-only with no backend compute to serialize writes; drift is negligible under low concurrency.\n\nFIX OPTIONS: (a) atomic DB increment (Mongo $inc / Postgres UPDATE ... +1 / Redis INCR); (b) append-only event log + count on read (append is atomic, sidesteps the race); (c) OS file lock around read-modify-write.\n\nWhere: src/resume_builder/metrics/usage_counter.py; demonstrated by tests/unit/test_usage_counter.py::test_lost_update_race_is_real_when_reads_interleave.",
+      "start": "2026-07-01",
+      "target": "2026-07-08",
+      "department": "Data & DB",
+      "hitl": "Yes",
+      "worst_case": "2026-07-15",
+      "priority": "P2",
+      "estimate": 1,
+      "milestone": "Platform & Intelligence — Wk2",
+      "assignee": "JohnAndrewBalbarosa"
     }
   ],
   "date_fields": [

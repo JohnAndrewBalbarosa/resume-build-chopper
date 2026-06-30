@@ -47,6 +47,7 @@ from .auth import (
 )
 from .cdo_advisor import AdvisorAnalyzeRequest, analyze_for_injection
 from .mock_data import PROTOTYPE_DATA
+from ..metrics.usage_counter import add_pages_scraped, bump_download, read_counters
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -60,6 +61,8 @@ _ARTIFACT_ROOT = _REPO_ROOT / "out"
 _OUTPUT_ROOT = Path(tempfile.gettempdir()) / "resume-build-chopper-out"
 _OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 _ARTIFACT_ROOT.mkdir(parents=True, exist_ok=True)
+# Aggregate usage counters (downloads, pages scraped). See metrics/usage_counter.py.
+_COUNTERS_PATH = _ARTIFACT_ROOT / "usage-counters.json"
 
 templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
 app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
@@ -137,6 +140,30 @@ def auth_callback(provider: str, code: str = "", state: str = ""):
 @app.get("/api/resumes")
 def api_resumes() -> dict[str, list[dict[str, object]]]:
     return {"items": _list_generated_resumes()}
+
+
+@app.get("/api/metrics")
+def api_metrics() -> dict[str, int]:
+    """Read the aggregate usage counters (downloads, pages scraped)."""
+    return read_counters(_COUNTERS_PATH).model_dump()
+
+
+@app.post("/api/metrics/download")
+def api_metrics_download() -> dict[str, int]:
+    """Frontend hook: +1 each time a resume is downloaded/exported.
+
+    NOTE: read-modify-write, so concurrent calls can lose an update. Accepted for
+    now; the atomic fix is tracked in the GitHub Projects backlog.
+    """
+    return bump_download(_COUNTERS_PATH).model_dump()
+
+
+@app.post("/api/metrics/pages")
+def api_metrics_pages(pages: int = 1) -> dict[str, int]:
+    """Frontend hook: +N pages scraped (defaults to +1). Same race caveat applies."""
+    if pages < 0:
+        return JSONResponse({"error": "pages must be >= 0"}, status_code=400)
+    return add_pages_scraped(pages, _COUNTERS_PATH).model_dump()
 
 
 @app.post("/api/cdo/advisor/analyze")
