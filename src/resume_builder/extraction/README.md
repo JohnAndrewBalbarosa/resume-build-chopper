@@ -42,6 +42,51 @@ category. Deeper sampling adapts to content and distinct layouts within hard saf
 Learned layouts and `latest-run.json` live under `out/crawler-rules/` by default; `LayoutStore` is
 the persistence seam for a future backend.
 
+The crawler's cache key is `crawler_dom.fingerprint` — a **strict class-vocabulary hash**: two
+pages share a learned layout only when their full set of stable `tag#id` / `tag.class` /
+`tag[role]` selectors is identical. A near-match is treated as a *different* layout (cache miss →
+fresh AI inference) rather than risk replaying another page's rules. This favours accuracy over
+token savings; see the benchmark below for the cost of that choice.
+
+## Benchmark — token cost & output vs agent tool-calling
+
+Why route structure-learning through the LLM and replay it in Python, instead of letting an agent
+scrape by reading each page into its context? The cost curves diverge sharply with page count `N`.
+Full harness, data, and reproduction steps: [`benchmarks/scraper_token_cost/`](../../../benchmarks/scraper_token_cost/).
+
+**Complexity (LLM tokens):**
+
+| Strategy | Complexity | Why |
+|---|---|---|
+| Agent tool-calling (naive, accumulating context) | **O(N²)** | every prior page is re-read each turn |
+| Agent tool-calling (best case, per-page isolation) | **O(N)** | each page enters context once; loses cross-page reasoning |
+| `AgenticCrawler` pipeline | **O(N)** small slope **+ bounded O(L)** | rule-learning is paid once per *distinct layout* `L`, not per page; extraction is deterministic Python (0 tokens) |
+
+**Projected total tokens** (quotes.toscrape.com, `tiktoken cl100k_base`, L=2):
+
+| pages | agent O(N²) naive | agent O(N) best | pipeline | pipeline vs best |
+|---|---|---|---|---|
+| 5 | 45,446 | 16,882 | 18,619 | 0.9× (≈ tie) |
+| 25 | 938,930 | 82,010 | 25,539 | **3.2× cheaper** |
+| 100 | 14,465,420 | 326,240 | 51,489 | **6.3× cheaper** |
+
+Crossover ≈ **6 pages**: below it the agent is cheaper (less fixed overhead); above it the pipeline
+wins and the gap widens because the agent is super-linear and the pipeline is not.
+
+**Output shape** is the flip side of the trade:
+
+| | Agent tool-calling | `AgenticCrawler` pipeline |
+|---|---|---|
+| Shape | structured per-field JSON `{text, author, tags[]}` | flat extracted-text blob per page (`apply_tag_rules` joins EXTRACT regions) |
+| Fits | ready-to-use records | the resume **evidence-text corpus** this package exists to feed P3 |
+| Cost | full HTML re-ingested every page | one rule-learn per layout, then free Python replay |
+
+> **Measured vs modeled.** Page/inventory/fingerprint sizes and both strategies' real output were
+> *measured* against the live pages and this package's real functions. The per-call LLM token
+> constants and all `N`-scaling projections are *modeled* — no live LLM was billed. Every datum is
+> tagged `measured` or `assumed` in `benchmarks/scraper_token_cost/data/measured.json`, and the
+> complexity claims are locked by `tests/unit/test_scraper_token_benchmark.py`.
+
 ## Data flow
 
 ```mermaid
@@ -82,6 +127,11 @@ flowchart TD
 | `rules.py` | CSS-subset `apply_rules` + `ExtractionRuleEngine` (AI rule gen with fingerprint cache) |
 | `github_traversal.py` | Three-depth GitHub collectors + `gather_repo_sources` user-facing selector |
 | `web.py` | `extract_website` — single-call orchestrator for the website path |
+| `crawler.py` | `AgenticCrawler` (observe → infer → validate → revise → crawl loop) + `RobotsPolicy` + `PlaywrightPageFetcher` |
+| `crawler_dom.py` | `build_dom_inventory` (DOM observation w/ link names), `apply_tag_rules` (deterministic execution of AI tag actions), `fingerprint` (strict class-vocabulary cache key), `safe_same_domain_url` |
+| `crawler_models.py` | Crawler pydantic models: `HtmlTagRule`/`NodeAction`, `LearnedLayout`, `LinkCandidate`/`LinkSelection`, `ExtractedPage`, `CrawlRun` |
+| `crawler_store.py` | `LayoutStore` — memory-first learned-layout cache, local JSON persistence, run writer |
+| `domain_fallbacks.py` | Registered per-domain scraper adapters used only after AI + readability fail |
 
 ## Contracts / key signatures
 
