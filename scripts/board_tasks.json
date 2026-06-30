@@ -1401,7 +1401,7 @@
     },
     {
       "title": "JOB.2 Structured JSON output contract (plan schema)",
-      "stage": "Todo",
+      "stage": "In Review",
       "role": "AI",
       "group": "Intelligence",
       "body": "🎯 Goal: the typed plan contract { platform, workflow, detected_fields, required_documents, missing_information, upload_strategy, browser_actions, validation_steps, recovery_plan, hitl }.\n📦 Scope: pydantic schema + examples; hitl.stop_before='Submit' always.\nWhere: src/org_ops/ (new job module), docs/JOB-APPLICATION-AGENT.md §10.\n🔗 Depends: JOB.1",
