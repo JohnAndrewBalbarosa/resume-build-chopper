@@ -49,5 +49,24 @@ In the actual interpretation pipeline, do NOT send all projects to one big call.
   single self-contained folder. One-folder-per-concept is the target; a single cohesive folder is fine.
 - Apply when touching code that has grown tangled; keep each concept's code together.
 
-> Status: notes only. Fold #1 into a P2 follow-up task (scan-depth option + `collect_repo_code`),
-> and #2/#3 into the P3 (Interpretation & Tagging) spec when we brainstorm it next.
+## 4. Compile pipeline = the retrieval MIDDLEMAN for ALL sources (+ PDF upload, no OCR)
+
+Reframe the P3 "compile" step from "concatenate the per-project tagging JSONs" into the **single
+middleman that gathers every retrieved input** and routes it. All retrieval flows through it.
+
+- **Sources it gathers** (one typed envelope each):
+  - `project` — GitHub repos via P2 `gather_repo_sources` (depth `readme`/`markdown`/`code`).
+  - `post` — social posts (Profile Scraper Agent) and arbitrary websites (P2 skeleton pass).
+  - `document` — **user-uploaded PDF/DOCX/TXT** from the UI. **Text-based → NO OCR**; extract text
+    directly via the existing `DocumentSource` (pypdf / python-docx). A "PDF upload / scanner"
+    control on the UI side feeds these in.
+- **Routing after compile:**
+  - `project` + `post` → the parallel per-project / per-post **tagging** agents (industries + skills).
+  - `document` → candidate context (contact / experience / education / skills) consumed by P4 synth;
+    may also surface taggable achievements.
+- **Why middleman:** one place owns retrieval + normalization into a common shape, so tagging and
+  assembly depend on the envelope, not on each source's quirks. Uploaded docs become a first-class
+  source alongside GitHub and social — no special-casing downstream.
+
+> Status: notes only. Fold #1 into a P2 follow-up task (scan-depth option + `collect_repo_code`,
+> partly shipped 2026-06-30), and #2/#3/#4 into the P3 (Interpretation & Tagging) spec.
