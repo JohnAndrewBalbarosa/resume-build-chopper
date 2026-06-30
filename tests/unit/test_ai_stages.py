@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from resume_builder.extractors import AIExtractor
 from resume_builder.llm.base import LLMProvider
-from resume_builder.models import Repo, RoleSpec
+from resume_builder.core.models import Repo, RoleSpec
 from resume_builder.role import AIRolePicker
 
 

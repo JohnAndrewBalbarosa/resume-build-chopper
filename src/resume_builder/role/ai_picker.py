@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 
 from ..llm import LLMProvider
-from ..models import RoleSpec
-from ..principles import HARVARD_PRINCIPLES
+from ..core.models import RoleSpec
+from ..core.principles import HARVARD_PRINCIPLES
 from .base import RolePicker
 
 _SYSTEM = (

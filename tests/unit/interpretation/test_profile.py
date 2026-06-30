@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resume_builder.industry import IndustryClassification, TaggedProject
+from resume_builder.classification.industry import IndustryClassification, TaggedProject
 from resume_builder.interpretation.models import UserProfile
 from resume_builder.interpretation.profile import ProfileSink, build_user_profile
 

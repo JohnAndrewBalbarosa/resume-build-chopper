@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resume_builder.industry import TaggedProject
+from resume_builder.classification.industry import TaggedProject
 from resume_builder.interpretation.models import RetrievedSource
 from resume_builder.interpretation.tagger import ProjectTagger
 

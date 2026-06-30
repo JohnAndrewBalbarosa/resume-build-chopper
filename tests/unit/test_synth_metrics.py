@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from resume_builder.llm.base import LLMProvider
 from resume_builder.metrics import ProjectMetric
-from resume_builder.models import ContactInfo, Evidence, Resume, RoleSpec
+from resume_builder.core.models import ContactInfo, Evidence, Resume, RoleSpec
 from resume_builder.synthesizers.ai_synth import AISynthesizer
 
 

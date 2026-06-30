@@ -1,7 +1,7 @@
 """P3 — interpretation & tagging package."""
 from __future__ import annotations
 
-from ..industry import IndustryClassification
+from ..classification.industry import IndustryClassification
 from ..llm.base import LLMProvider
 from .compiler import compile_tags
 from .middleman import RetrievalMiddleman

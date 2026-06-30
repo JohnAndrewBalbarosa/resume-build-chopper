@@ -11,7 +11,7 @@ from resume_builder.metrics import (
     save_metrics,
 )
 from resume_builder.metrics.miner import mine_repo
-from resume_builder.models import Repo
+from resume_builder.core.models import Repo
 
 
 # ---- store ----

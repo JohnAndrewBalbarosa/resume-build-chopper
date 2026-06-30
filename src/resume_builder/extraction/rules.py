@@ -4,7 +4,7 @@ import re
 
 import lxml.html
 
-from ..industry import ExtractionRule
+from ..classification.industry import ExtractionRule
 from ..llm.base import LLMProvider
 from .skeleton import build_skeleton, template_fingerprint
 

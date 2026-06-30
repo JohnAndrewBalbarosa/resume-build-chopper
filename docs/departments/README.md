@@ -33,7 +33,7 @@ ROLE  →  COLLECT  →  EXTRACT  →  SYNTHESIZE  →  RENDER
 
 ## The Golden Contract (every department obeys this)
 
-The file `src/resume_builder/models.py` is the **constitution**. Every stage produces and
+The file `src/resume_builder/core/models.py` is the **constitution**. Every stage produces and
 consumes the same pydantic models (`RoleSpec`, `Repo`, `Evidence`, `Resume`, ...).
 
 **This is what lets us delegate by department.** You can rewrite the entire `static` extractor
@@ -49,7 +49,7 @@ the abstract base class for your stage.
 
 | # | Department | Functional module | Owns (folders) | Hands off to |
 |---|------------|-------------------|----------------|--------------|
-| **01** | [Core / Orchestration](01-core-pipeline/README.md) | Domain models + pipeline wiring + role picking + config | `models.py`, `pipeline.py`, `config.py`, `principles.py`, `role/`, `cli.py` | drives all others |
+| **01** | [Core / Orchestration](01-core-pipeline/README.md) | Domain models + pipeline wiring + role picking + config | `core/` (`models.py`, `config.py`, `principles.py`), `orchestration/pipeline.py`, `role/`, `cli.py` | drives all others |
 | **02** | [Sources / Data Collection](02-sources/README.md) | Pull raw evidence in (GitHub, documents, social scraper) | `sources/` (incl. `sources/social/`) | → 03 |
 | **03** | [Intelligence](03-intelligence/README.md) | Role-aware filtering + resume assembly + LLM providers | `extractors/`, `synthesizers/`, `llm/` | → 04 |
 | **04** | [Rendering / Output](04-rendering/README.md) | Turn the `Resume` model into files (LaTeX/PDF/HTML/MD/JSON) | `renderers/`, `config/templates/` | final output |

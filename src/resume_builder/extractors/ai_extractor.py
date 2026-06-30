@@ -9,8 +9,8 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from ..llm import LLMProvider
-from ..models import Evidence, Repo, RoleSpec
-from ..principles import HARVARD_PRINCIPLES
+from ..core.models import Evidence, Repo, RoleSpec
+from ..core.principles import HARVARD_PRINCIPLES
 from .base import Extractor
 
 _MAX_README_CHARS = 1500

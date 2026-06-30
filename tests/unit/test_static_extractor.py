@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from resume_builder.extractors import StaticExtractor
-from resume_builder.models import Repo, RoleSpec
+from resume_builder.core.models import Repo, RoleSpec
 
 
 def _role() -> RoleSpec:

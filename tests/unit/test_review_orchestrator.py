@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from resume_builder.llm.base import LLMProvider
-from resume_builder.review_orchestrator import (
+from resume_builder.review.review_orchestrator import (
     MAX_RESUME_REVIEW_CHARS,
     REVIEW_SYSTEM_PROMPT,
     build_review_prompt,

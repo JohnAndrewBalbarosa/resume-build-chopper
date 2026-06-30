@@ -3,7 +3,7 @@ from __future__ import annotations
 from resume_builder.extraction.models import CleanedSource
 from resume_builder.interpretation.middleman import RetrievalMiddleman
 from resume_builder.interpretation.models import RetrievedSource
-from resume_builder.models import DocumentType, RawDocument
+from resume_builder.core.models import DocumentType, RawDocument
 
 
 def test_gather_normalizes_all_kinds():

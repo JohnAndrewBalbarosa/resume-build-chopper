@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from resume_builder.extraction.rules import apply_rules
-from resume_builder.industry import ExtractionRule
+from resume_builder.classification.industry import ExtractionRule
 
 _HTML = """
 <html><body>

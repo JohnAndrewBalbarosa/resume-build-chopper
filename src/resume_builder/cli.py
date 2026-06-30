@@ -15,15 +15,15 @@ from pathlib import Path
 
 import typer
 
-from .config import get_settings
+from .core.config import get_settings
 from .llm import get_provider
-from .industry import WebPageInput
-from .models import Mode
-from .pipeline import BuildIndustryInputs, BuildInputs, Pipeline
+from .classification.industry import WebPageInput
+from .core.models import Mode
+from .orchestration.pipeline import BuildIndustryInputs, BuildInputs, Pipeline
 from .role import StaticRolePicker
 from .sources.social import build_default_aggregator
 from .sources.document import DocumentSource
-from .review_orchestrator import review_resume_text
+from .review.review_orchestrator import review_resume_text
 
 from .commands import auth_cmd as _auth_cmd
 from .commands import scrape_cmd as _scrape_cmd

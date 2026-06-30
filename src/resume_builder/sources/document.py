@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from ..models import DocumentType, RawDocument
+from ..core.models import DocumentType, RawDocument
 from .base import SourceCollector
 
 log = logging.getLogger(__name__)

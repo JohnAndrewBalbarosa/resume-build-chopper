@@ -12,7 +12,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from ..models import Resume
+from ..core.models import Resume
 from .base import Renderer
 
 _TEX_REPLACE = {

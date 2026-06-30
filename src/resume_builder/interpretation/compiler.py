@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..industry import TaggedProject
+from ..classification.industry import TaggedProject
 
 
 def compile_tags(*result_lists: list[TaggedProject]) -> list[TaggedProject]:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .llm import LLMProvider
+from ..llm import LLMProvider
 
 MAX_RESUME_REVIEW_CHARS = 18_000
 

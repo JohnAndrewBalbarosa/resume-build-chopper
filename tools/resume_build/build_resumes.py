@@ -43,7 +43,7 @@ def _say(m: str) -> None:
 
 
 def _combined_achievements():
-    from resume_builder.models import ResumeAchievement
+    from resume_builder.core.models import ResumeAchievement
 
     items: list[ResumeAchievement] = []
     if FB.exists():
@@ -108,7 +108,7 @@ def _enrich_contact(resume, li: dict) -> None:
 
 
 def _education_from_li(li: dict):
-    from resume_builder.models import ResumeEducation
+    from resume_builder.core.models import ResumeEducation
 
     out = []
     for e in li.get("education", []):
@@ -125,8 +125,8 @@ def _education_from_li(li: dict):
 def main() -> int:
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
 
-    from resume_builder.models import Mode
-    from resume_builder.pipeline import BuildInputs, Pipeline
+    from resume_builder.core.models import Mode
+    from resume_builder.orchestration.pipeline import BuildInputs, Pipeline
 
     achievements = _combined_achievements()
     li = _linkedin_profile()

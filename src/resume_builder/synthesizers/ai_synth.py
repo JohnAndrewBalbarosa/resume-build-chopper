@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from ..llm import LLMProvider
 from ..metrics import ProjectMetric, metrics_by_repo
-from ..models import (
+from ..core.models import (
     ContactInfo,
     Evidence,
     RawDocument,
@@ -22,7 +22,7 @@ from ..models import (
     Resume,
     RoleSpec,
 )
-from ..principles import HARVARD_PRINCIPLES
+from ..core.principles import HARVARD_PRINCIPLES
 from .base import Synthesizer
 from .static_synth import StaticSynthesizer
 

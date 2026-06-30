@@ -8,9 +8,9 @@ import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
-from resume_builder.config import get_settings
-from resume_builder.models import Mode
-from resume_builder.pipeline import BuildInputs, Pipeline
+from resume_builder.core.config import get_settings
+from resume_builder.core.models import Mode
+from resume_builder.orchestration.pipeline import BuildInputs, Pipeline
 
 
 def _gh_response(payload: object) -> subprocess.CompletedProcess:
@@ -98,8 +98,8 @@ University of Example
 
 
 def test_projects_filtered_by_role_static():
-    from resume_builder.models import ResumeProject, RoleSpec
-    from resume_builder import pipeline as P
+    from resume_builder.core.models import ResumeProject, RoleSpec
+    from resume_builder.orchestration import pipeline as P
 
     role = RoleSpec(id="ml-engineer", label="ML", keywords=["pytorch", "LLM"],
                     must_have_skills=["python"], nice_to_have=[])

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resume_builder.models import (
+from resume_builder.core.models import (
     DocumentType,
     Evidence,
     RawDocument,

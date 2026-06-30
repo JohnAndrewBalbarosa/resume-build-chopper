@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from typing import Any
 
-from ..models import Repo
+from ..core.models import Repo
 from .base import SourceCollector
 
 log = logging.getLogger(__name__)

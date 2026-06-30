@@ -13,13 +13,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from .config import Settings, get_settings
-from .extractors import AIExtractor, Extractor, StaticExtractor
-from .llm import LLMProvider, get_provider
-from .llm.null_provider import NullProvider
-from .metrics import load_metrics
-from .extraction.models import CleanedSource
-from .industry import (
+from ..core.config import Settings, get_settings
+from ..extractors import AIExtractor, Extractor, StaticExtractor
+from ..llm import LLMProvider, get_provider
+from ..llm.null_provider import NullProvider
+from ..metrics import load_metrics
+from ..extraction.models import CleanedSource
+from ..classification.industry import (
     IndustryClassification,
     IndustryClassifier,
     IndustryResumePlan,
@@ -27,8 +27,8 @@ from .industry import (
     WebPageInput,
     plan_industry_resumes,
 )
-from .interpretation import RetrievedSource, interpret
-from .models import (
+from ..interpretation import RetrievedSource, interpret
+from ..core.models import (
     Evidence,
     Mode,
     RawDocument,
@@ -38,18 +38,18 @@ from .models import (
     ResumeProject,
     RoleSpec,
 )
-from .principles import HARVARD_PRINCIPLES
-from .renderers import get_renderer
-from .role import AIRolePicker, RolePicker, StaticRolePicker
-from .sources import DocumentSource, GitHubSource
-from .sources.social import (
+from ..core.principles import HARVARD_PRINCIPLES
+from ..renderers import get_renderer
+from ..role import AIRolePicker, RolePicker, StaticRolePicker
+from ..sources import DocumentSource, GitHubSource
+from ..sources.social import (
     CollectResult,
     ScrapeConfig,
     SocialAggregator,
     build_default_aggregator,
     load_scrape_config,
 )
-from .synthesizers import AISynthesizer, StaticSynthesizer, Synthesizer
+from ..synthesizers import AISynthesizer, StaticSynthesizer, Synthesizer
 
 log = logging.getLogger(__name__)
 

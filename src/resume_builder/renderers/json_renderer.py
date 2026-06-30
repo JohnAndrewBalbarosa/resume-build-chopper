@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from ..models import Resume
+from ..core.models import Resume
 from .base import Renderer
 from . import brand_icons
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..models import RoleSpec
+from ..core.models import RoleSpec
 from .base import RoleNotFoundError, RolePicker
 
 

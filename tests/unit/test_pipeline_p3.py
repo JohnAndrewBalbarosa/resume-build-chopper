@@ -8,12 +8,12 @@ Covers:
 """
 from __future__ import annotations
 
-from resume_builder.industry import IndustryClassification, TaggedProject
+from resume_builder.classification.industry import IndustryClassification, TaggedProject
 from resume_builder.interpretation.normalizer import _AliasMap
 from resume_builder.llm.base import LLMProvider
 from resume_builder.llm.null_provider import NullProvider
-from resume_builder.models import Mode, Repo, ResumeAchievement
-from resume_builder.pipeline import BuildIndustryInputs, Pipeline
+from resume_builder.core.models import Mode, Repo, ResumeAchievement
+from resume_builder.orchestration.pipeline import BuildIndustryInputs, Pipeline
 
 
 # ---------------------------------------------------------------------------

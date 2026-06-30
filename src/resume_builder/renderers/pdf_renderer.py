@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from ..models import Resume
+from ..core.models import Resume
 from .base import Renderer
 from .latex_renderer import LatexRenderer
 

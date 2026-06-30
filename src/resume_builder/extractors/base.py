@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from ..models import Evidence, Repo, RoleSpec
+from ..core.models import Evidence, Repo, RoleSpec
 
 
 class Extractor(ABC):

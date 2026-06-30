@@ -15,7 +15,7 @@ import re
 from pathlib import Path
 from typing import Iterable
 
-from ..models import Evidence, Repo, RoleSpec
+from ..core.models import Evidence, Repo, RoleSpec
 from .base import Extractor
 
 

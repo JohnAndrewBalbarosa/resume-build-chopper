@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from ..config import Settings, get_settings
+from ..core.config import Settings, get_settings
 from .anthropic_provider import AnthropicProvider
 from .base import LLMProvider
 from .claude_session_provider import ClaudeSessionProvider

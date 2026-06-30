@@ -24,10 +24,10 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from ..config import get_settings
+from ..core.config import get_settings
 from ..llm import LLMUnavailableError, get_provider
-from ..models import Mode
-from ..pipeline import BuildInputs, Pipeline
+from ..core.models import Mode
+from ..orchestration.pipeline import BuildInputs, Pipeline
 from ..role import StaticRolePicker
 from ..sources.social.auth import SessionStore
 from ..sources.social.browser_login import PlaywrightNotInstalled, open_login_window

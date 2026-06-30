@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from resume_builder.models import (
+from resume_builder.core.models import (
     ContactInfo,
     Resume,
     ResumeExperience,
@@ -79,7 +79,7 @@ def test_registry_resolves(templates_dir):
 
 def test_pdf_renders_single_column_smoke(templates_dir):
     from resume_builder.renderers.pdf_renderer import PdfRenderer
-    from resume_builder.models import Resume, RoleSpec, ContactInfo, ResumeProject
+    from resume_builder.core.models import Resume, RoleSpec, ContactInfo, ResumeProject
     resume = Resume(
         role=RoleSpec(id="r", label="R", keywords=[], must_have_skills=[], nice_to_have=[]),
         contact=ContactInfo(name="Test User"),
@@ -94,7 +94,7 @@ def test_pdf_renders_single_column_smoke(templates_dir):
 
 def test_latex_is_single_column(templates_dir):
     from resume_builder.renderers.latex_renderer import LatexRenderer
-    from resume_builder.models import Resume, RoleSpec, ContactInfo
+    from resume_builder.core.models import Resume, RoleSpec, ContactInfo
     resume = Resume(
         role=RoleSpec(id="r", label="R", keywords=[], must_have_skills=[], nice_to_have=[]),
         contact=ContactInfo(name="Test User"), summary="S", skills=["Python"],
@@ -109,7 +109,7 @@ def test_latex_is_single_column(templates_dir):
 
 def test_html_is_single_column_with_section_dividers(templates_dir):
     from resume_builder.renderers.html_renderer import HtmlRenderer
-    from resume_builder.models import Resume, RoleSpec, ContactInfo
+    from resume_builder.core.models import Resume, RoleSpec, ContactInfo
     resume = Resume(
         role=RoleSpec(id="r", label="R", keywords=[], must_have_skills=[], nice_to_have=[]),
         contact=ContactInfo(name="Test User"),
@@ -128,7 +128,7 @@ def test_html_is_single_column_with_section_dividers(templates_dir):
 
 def _resume_with_social() -> Resume:
     """Minimal resume with github + linkedin contacts and a facebook-source achievement."""
-    from resume_builder.models import ResumeAchievement
+    from resume_builder.core.models import ResumeAchievement
     return Resume(
         role=RoleSpec(id="sec", label="Security Engineer", keywords=[]),
         contact=ContactInfo(
@@ -398,7 +398,7 @@ def test_pdf_full_width_contact_and_project_links(templates_dir):
     caused long tokens like 'JohnAndrewBalbar' / 'osa' to split across lines.
     """
     from resume_builder.renderers.pdf_renderer import PdfRenderer
-    from resume_builder.models import Resume, RoleSpec, ContactInfo, ResumeProject
+    from resume_builder.core.models import Resume, RoleSpec, ContactInfo, ResumeProject
 
     resume = Resume(
         role=RoleSpec(id="r", label="Software Engineer", keywords=[]),

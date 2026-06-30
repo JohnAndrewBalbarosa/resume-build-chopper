@@ -121,7 +121,7 @@ degrades gracefully to the raw per-source tags rather than crashing the run.
 
 ## How it fits
 
-`interpretation/` sits between P2 (`extraction/`) and P4 assembly (`synthesizers/`, `industry.py`).
+`interpretation/` sits between P2 (`extraction/`) and P4 assembly (`synthesizers/`, `classification/industry.py`).
 It consumes `CleanedSource` and `RawDocument`, produces `IndustryClassification` (the structured
 tag corpus for P4) and `UserProfile` (the flat skills+industries snapshot for downstream use).
 `ProfileSink` persists the profile alongside the build output so it survives across runs.

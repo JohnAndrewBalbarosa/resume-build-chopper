@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resume_builder.industry import (
+from resume_builder.classification.industry import (
     IndustryClassification,
     TaggedAchievement,
     TaggedProject,
@@ -8,8 +8,8 @@ from resume_builder.industry import (
     plan_industry_resumes,
 )
 from resume_builder.llm.base import LLMProvider
-from resume_builder.models import Repo, ResumeAchievement
-from resume_builder.industry import IndustryClassifier
+from resume_builder.core.models import Repo, ResumeAchievement
+from resume_builder.classification.industry import IndustryClassifier
 
 
 class _ClassifierLLM(LLMProvider):

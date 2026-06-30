@@ -3,7 +3,7 @@ from __future__ import annotations
 from resume_builder.extraction.fetch import SourceFetcher
 from resume_builder.extraction.rules import ExtractionRuleEngine
 from resume_builder.extraction.web import extract_website
-from resume_builder.industry import ExtractionRule
+from resume_builder.classification.industry import ExtractionRule
 
 _PAGE = (
     "<html><body><header class='nav'>Menu Home</header>"

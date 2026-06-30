@@ -4,7 +4,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from ..models import Resume
+from ..core.models import Resume
 from .base import Renderer
 from . import brand_icons
 

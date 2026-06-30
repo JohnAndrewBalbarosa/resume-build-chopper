@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from ..models import Repo
+from ..core.models import Repo
 
 # Strong quantity units → high confidence (clearly a measurable count/rate).
 _STRONG_UNITS = (

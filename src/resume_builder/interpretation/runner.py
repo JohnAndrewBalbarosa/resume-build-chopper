@@ -4,7 +4,7 @@ import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from ..industry import TaggedProject
+from ..classification.industry import TaggedProject
 from .models import RetrievedSource, TagRunReport
 
 log = logging.getLogger(__name__)

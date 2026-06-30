@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..industry import IndustryClassification, _dedupe
+from ..classification.industry import IndustryClassification, _dedupe
 from .models import UserProfile
 
 

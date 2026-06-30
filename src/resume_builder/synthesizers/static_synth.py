@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 from typing import Iterable
 
-from ..models import (
+from ..core.models import (
     ContactInfo,
     Evidence,
     RawDocument,

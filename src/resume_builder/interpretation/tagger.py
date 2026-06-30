@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ..industry import TaggedProject
+from ..classification.industry import TaggedProject
 from ..llm.base import LLMProvider
-from ..principles import HARVARD_PRINCIPLES
+from ..core.principles import HARVARD_PRINCIPLES
 from .models import RetrievedSource
 
 _TAGGER_SYSTEM = (

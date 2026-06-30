@@ -2,7 +2,7 @@
 
 The whole application lives here. It's a **5-stage pipeline** where every stage has two
 interchangeable implementations (`static` = offline/regex, `ai` = LLM-driven) behind one
-interface. The orchestrator (`pipeline.py`) is the only code that knows which mode is running.
+interface. The orchestrator (`orchestration/pipeline.py`) is the only code that knows which mode is running.
 
 > 📖 Architecture & team ownership: [`docs/departments/`](../../docs/departments/README.md)
 
@@ -19,12 +19,12 @@ flowchart LR
     B --> C[extractors/<br/>score by role]
     C --> D[synthesizers/<br/>assemble Resume]
     D --> E[renderers/<br/>write files]
-    M[models.py<br/>shared contracts] -.-> A
+    M[core/models.py<br/>shared contracts] -.-> A
     M -.-> B
     M -.-> C
     M -.-> D
     M -.-> E
-    P[pipeline.py<br/>orchestrator] ==> A
+    P[orchestration/pipeline.py<br/>orchestrator] ==> A
     P ==> B
     P ==> C
     P ==> D
@@ -35,9 +35,10 @@ flowchart LR
 
 | Folder / file | Responsibility | Department |
 |---|---|---|
-| `models.py` | Canonical pydantic contracts shared by all stages (the constitution) | 01 |
-| `pipeline.py` | Orchestrator; the only mode-aware code | 01 |
-| `config.py` / `principles.py` | Settings, paths, Harvard resume principles | 01 |
+| [`core/`](core/README.md) | Canonical pydantic contracts (`models.py`), settings (`config.py`), Harvard principles (`principles.py`) | 01 |
+| [`orchestration/`](orchestration/README.md) | `pipeline.py` orchestrator; the only mode-aware code | 01 |
+| [`classification/`](classification/README.md) | `industry.py` — industry plan + classification models | 03 |
+| [`review/`](review/README.md) | `review_orchestrator.py` — LLM audit/review of a resume | 03 |
 | `cli.py` | `resume-build` Typer entrypoint | 01 |
 | [`role/`](role/README.md) | Pick a `RoleSpec` from an id or a prompt | 01 |
 | [`sources/`](sources/README.md) | Pull raw evidence (GitHub, docs, social) | 02 |
@@ -47,7 +48,6 @@ flowchart LR
 | [`renderers/`](renderers/README.md) | `Resume` → files (LaTeX/PDF/HTML/MD/JSON) | 04 |
 | [`web/`](web/README.md) | FastAPI "CareerLens" prototype | 05 |
 | [`commands/`](commands/README.md) | CLI subcommands (auth, scrape) | 01 |
-| `review_orchestrator.py` | LLM audit/review of a resume | 03 |
 
 ## Two modes
 
@@ -81,7 +81,7 @@ flowchart TD
         IN --> UP[UserProfile]
     end
 
-    subgraph P4["P4 — Assembly (industry.py + synthesizers/)"]
+    subgraph P4["P4 — Assembly (classification/industry.py + synthesizers/)"]
         IC --> AS[synthesizers/<br/>AISynthesizer / StaticSynthesizer]
         ME[metrics/<br/>ProjectMetric CSV] --> AS
         AS --> RES[Resume]
@@ -105,9 +105,8 @@ flowchart TD
 
 | Folder / file | Stage | Responsibility | Department |
 |---|---|---|---|
-| `models.py` | cross-cut | Canonical pydantic contracts (the constitution) | 01 |
-| `pipeline.py` | cross-cut | Orchestrator; the only mode-aware code | 01 |
-| `config.py` / `principles.py` | cross-cut | Settings, paths, Harvard resume principles | 01 |
+| [`core/`](core/README.md) | cross-cut | `models.py` (contracts), `config.py` (settings/paths), `principles.py` (Harvard) | 01 |
+| [`orchestration/`](orchestration/README.md) | cross-cut | `pipeline.py` orchestrator; the only mode-aware code | 01 |
 | `cli.py` | cross-cut | `resume-build` Typer entrypoint | 01 |
 | [`role/`](role/README.md) | pre-P1 | Pick a `RoleSpec` from an id or a prompt | 01 |
 | [`sources/`](sources/README.md) | P1 | Pull raw evidence (GitHub, docs, social) | 02 |
@@ -115,7 +114,7 @@ flowchart TD
 | [`interpretation/`](interpretation/README.md) | P3 | Tag + normalize → `IndustryClassification` + `UserProfile` | 03 |
 | [`extractors/`](extractors/README.md) | P3-legacy | Score/filter repos by role → `Evidence` | 03 |
 | [`synthesizers/`](synthesizers/README.md) | P4 | Assemble inputs → `Resume` | 03 |
-| `industry.py` | P4 | Industry plan + classification models | 03 |
+| [`classification/`](classification/README.md) | P4 | `industry.py` — industry plan + classification models | 03 |
 | [`metrics/`](metrics/README.md) | P4 support | Candidate-confirmed impact numbers → grounds bullets | 03 |
 | [`llm/`](llm/README.md) | cross-cut | Provider-agnostic LLM interface | 03 |
 | [`renderers/`](renderers/README.md) | P5 | `Resume` → files (LaTeX/PDF/HTML/MD/JSON) | 04 |
@@ -123,4 +122,4 @@ flowchart TD
 | [`job_application/`](job_application/README.md) | sibling | `ApplicationPlan` schema + workflow state machine | 05 |
 | [`web/`](web/README.md) | sibling | FastAPI "CareerLens" prototype | 05 |
 | [`commands/`](commands/README.md) | cross-cut | CLI subcommands (auth, scrape) | 01 |
-| `review_orchestrator.py` | cross-cut | LLM audit/review of a resume | 03 |
+| [`review/`](review/README.md) | cross-cut | `review_orchestrator.py` — LLM audit/review of a resume | 03 |

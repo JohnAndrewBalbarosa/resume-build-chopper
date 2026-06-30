@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from resume_builder.models import ResumeProject, RoleSpec
-from resume_builder import pipeline as P
+from resume_builder.core.models import ResumeProject, RoleSpec
+from resume_builder.orchestration import pipeline as P
 
 
 def _role(**kw) -> RoleSpec:

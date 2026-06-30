@@ -13,10 +13,10 @@ from collections import defaultdict
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .llm import LLMProvider
-from .llm.null_provider import NullProvider
-from .models import Repo, ResumeAchievement, ResumeProject, RoleSpec
-from .principles import HARVARD_PRINCIPLES
+from ..llm import LLMProvider
+from ..llm.null_provider import NullProvider
+from ..core.models import Repo, ResumeAchievement, ResumeProject, RoleSpec
+from ..core.principles import HARVARD_PRINCIPLES
 
 _MAX_README_CHARS = 1800
 _MAX_SOCIAL_CHARS = 600

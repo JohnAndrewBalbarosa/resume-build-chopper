@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from ..industry import IndustryClassification, TaggedProject, _dedupe, _normalize_classification
+from ..classification.industry import IndustryClassification, TaggedProject, _dedupe, _normalize_classification
 from ..llm.base import LLMProvider
 
 _NORMALIZER_SYSTEM = (

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resume_builder.industry import TaggedProject
+from resume_builder.classification.industry import TaggedProject
 from resume_builder.interpretation.normalizer import GlobalNormalizer
 
 

@@ -26,10 +26,12 @@ This is the **spine** of the product. It owns:
 
 ```
 src/resume_builder/
-├── models.py          # CONSTITUTION — domain models shared by all stages
-├── pipeline.py        # orchestrator; the only mode-aware code
-├── config.py          # Settings, config + template paths
-├── principles.py      # HARVARD_PRINCIPLES (LLM system-prompt guidance)
+├── core/
+│   ├── models.py      # CONSTITUTION — domain models shared by all stages
+│   ├── config.py      # Settings, config + template paths
+│   └── principles.py  # HARVARD_PRINCIPLES (LLM system-prompt guidance)
+├── orchestration/
+│   └── pipeline.py    # orchestrator; the only mode-aware code
 ├── cli.py             # Typer CLI entrypoint (`resume-build`)
 └── role/
     ├── base.py        # RolePicker ABC

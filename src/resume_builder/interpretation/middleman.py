@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..extraction.models import CleanedSource
-from ..models import RawDocument
+from ..core.models import RawDocument
 from .models import RetrievedSource
 
 

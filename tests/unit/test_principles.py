@@ -7,9 +7,9 @@ import pytest
 
 from resume_builder.extractors.ai_extractor import _SYSTEM as EXTRACT_SYS
 from resume_builder.extractors import AIExtractor
-from resume_builder.models import Repo, RoleSpec
-from resume_builder.pipeline import _ACHIEVEMENT_SYSTEM, _PROJECT_SYSTEM
-from resume_builder.principles import HARVARD_PRINCIPLES
+from resume_builder.core.models import Repo, RoleSpec
+from resume_builder.orchestration.pipeline import _ACHIEVEMENT_SYSTEM, _PROJECT_SYSTEM
+from resume_builder.core.principles import HARVARD_PRINCIPLES
 from resume_builder.role.ai_picker import _SYSTEM as PICKER_SYS
 from resume_builder.role import AIRolePicker
 from resume_builder.synthesizers.ai_synth import _SYSTEM as SYNTH_SYS
