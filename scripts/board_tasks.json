@@ -1737,7 +1737,7 @@
     },
     {
       "title": "Scraper token-cost benchmark (agent vs pipeline)",
-      "stage": "In Review",
+      "stage": "Done",
       "role": "Analytics",
       "group": "Intelligence",
       "department": "AI & ML",
@@ -1753,7 +1753,7 @@
     },
     {
       "title": "Aggregate usage counters (downloads, pages scraped)",
-      "stage": "In Review",
+      "stage": "Done",
       "role": "Analytics",
       "group": "Profiles & Analytics",
       "department": "Data & DB",
@@ -1769,7 +1769,7 @@
     },
     {
       "title": "AgenticCrawler hardening: strict fingerprint + link-name inventory + cache-hit test",
-      "stage": "In Review",
+      "stage": "Done",
       "role": "AI",
       "group": "Intelligence",
       "department": "AI & ML",
