@@ -19,8 +19,8 @@ from . import brand_icons
 
 
 def _brand_svg_safe(provider: str, size: int = 12) -> Markup:
-    """Jinja global: return brand SVG as Markup so autoescape won't double-escape it."""
-    return Markup(brand_icons.svg(provider, size))
+    """Jinja global: return brand icon HTML so autoescape won't double-escape it."""
+    return Markup(brand_icons.html(provider, size))
 
 
 class HtmlRenderer(Renderer):

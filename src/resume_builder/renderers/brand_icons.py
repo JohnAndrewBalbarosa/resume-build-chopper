@@ -10,8 +10,25 @@ rendering surfaces:
 
 from __future__ import annotations
 
+import base64
+import html as html_lib
 import math
+import mimetypes
+import os
 import re
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+ASSET_DIRS = [
+    PROJECT_ROOT / "config" / "assets",
+    PROJECT_ROOT / "assets",
+]
+ASSET_EXTENSIONS = (".svg", ".png", ".jpg", ".jpeg")
+ASSET_STEMS: dict[str, tuple[str, ...]] = {
+    "github": ("github-icon",),
+    "linkedin": ("linkedin-icon",),
+    "facebook": ("fb-icon", "facebook-icon"),
+}
 
 BRAND_PATHS: dict[str, str] = {
     "github": (
@@ -77,6 +94,47 @@ def svg(provider: str, size: int = 12) -> str:
     )
 
 
+def asset_path(provider: str, *, raster_only: bool = False) -> Path | None:
+    """Return the first matching configured icon asset for provider."""
+    provider_key = _normalize_provider(provider)
+    stems = ASSET_STEMS.get(provider_key, ())
+    if not stems:
+        return None
+
+    dirs: list[Path] = []
+    env_dir = os.environ.get("RESUME_ASSETS_DIR")
+    if env_dir:
+        dirs.append(Path(env_dir))
+    dirs.extend(ASSET_DIRS)
+
+    extensions = ASSET_EXTENSIONS
+    if raster_only:
+        extensions = tuple(ext for ext in extensions if ext != ".svg")
+
+    for directory in dirs:
+        for stem in stems:
+            for ext in extensions:
+                candidate = directory / f"{stem}{ext}"
+                if candidate.is_file():
+                    return candidate
+    return None
+
+
+def html(provider: str, size: int = 12) -> str:
+    """Return an HTML icon, preferring user-provided SVG/PNG/JPG assets."""
+    asset = asset_path(provider)
+    if asset is None:
+        return svg(provider, size)
+
+    mime = mimetypes.guess_type(asset.name)[0] or _mime_for_suffix(asset.suffix)
+    encoded = base64.b64encode(asset.read_bytes()).decode("ascii")
+    alt = html_lib.escape(_normalize_provider(provider), quote=True)
+    return (
+        f'<img class="brand-icon" src="data:{mime};base64,{encoded}" alt="{alt}" '
+        f'width="{size}" height="{size}" aria-hidden="true">'
+    )
+
+
 def drawing(provider: str, size: float = 9):
     """Return a reportlab Drawing with the brand icon. Returns None for unknown."""
     from reportlab.graphics.shapes import Drawing, Path
@@ -112,7 +170,10 @@ def badge_png_path(provider: str, px: int = 28) -> str | None:
     if provider not in BRAND_COLORS:
         return None
 
-    import os
+    asset = asset_path(provider, raster_only=True)
+    if asset is not None:
+        return _resized_raster_asset(asset, provider, px)
+
     import tempfile
 
     cache_dir = os.path.join(tempfile.gettempdir(), "claude_brand_badges")
@@ -186,6 +247,51 @@ def badge_png_path(provider: str, px: int = 28) -> str | None:
         return out_path
     except Exception:
         return None
+
+
+def _resized_raster_asset(asset: Path, provider: str, px: int) -> str | None:
+    try:
+        from PIL import Image  # type: ignore[import]
+    except ImportError:
+        return None
+
+    import tempfile
+
+    cache_dir = Path(tempfile.gettempdir()) / "claude_brand_badges"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_key = f"{provider}_{asset.stem}_{asset.stat().st_mtime_ns}_{px}.png"
+    out_path = cache_dir / cache_key
+    if out_path.exists():
+        return str(out_path)
+
+    try:
+        with Image.open(asset) as img:
+            img = img.convert("RGBA")
+            img.thumbnail((px, px), Image.LANCZOS)
+            canvas = Image.new("RGBA", (px, px), (0, 0, 0, 0))
+            x = (px - img.width) // 2
+            y = (px - img.height) // 2
+            canvas.alpha_composite(img, (x, y))
+            canvas.save(out_path, "PNG")
+        return str(out_path)
+    except Exception:
+        return None
+
+
+def _normalize_provider(provider: str) -> str:
+    provider_key = (provider or "").strip().lower()
+    if provider_key in {"fb", "facebook"}:
+        return "facebook"
+    return provider_key
+
+
+def _mime_for_suffix(suffix: str) -> str:
+    return {
+        ".svg": "image/svg+xml",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+    }.get(suffix.lower(), "application/octet-stream")
 
 
 def declutter(url: str | None, provider_hint: str = "") -> tuple[str | None, str | None]:

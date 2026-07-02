@@ -1,7 +1,7 @@
 """Tests for brand_icons module."""
 from __future__ import annotations
 
-from resume_builder.renderers.brand_icons import badge_png_path, declutter, drawing, svg
+from resume_builder.renderers.brand_icons import badge_png_path, declutter, drawing, html, svg
 
 
 def test_svg_github_contains_svg_tag():
@@ -25,6 +25,32 @@ def test_svg_size_is_applied():
     result = svg("github", size=20)
     assert 'width="20"' in result
     assert 'height="20"' in result
+
+
+def test_html_prefers_svg_asset(monkeypatch, tmp_path):
+    asset = tmp_path / "github-icon.svg"
+    asset.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+        '<path d="M0 0h24v24H0z"/></svg>',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("RESUME_ASSETS_DIR", str(tmp_path))
+    result = html("github", size=16)
+    assert "<img" in result
+    assert "data:image/svg+xml;base64," in result
+    assert 'width="16"' in result
+    assert 'height="16"' in result
+
+
+def test_badge_png_path_prefers_raster_asset(monkeypatch, tmp_path):
+    from PIL import Image
+
+    asset = tmp_path / "fb-icon.png"
+    Image.new("RGBA", (64, 32), (24, 119, 242, 255)).save(asset)
+    monkeypatch.setenv("RESUME_ASSETS_DIR", str(tmp_path))
+    result = badge_png_path("facebook", px=18)
+    assert result is not None
+    assert result.lower().endswith(".png")
 
 
 def test_drawing_github_returns_drawing():

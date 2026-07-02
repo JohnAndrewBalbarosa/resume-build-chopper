@@ -41,7 +41,12 @@
   .contact a{color:var(--muted); text-decoration:none; display:inline-flex; align-items:center; gap:3px;}
   .contact a:hover{color:var(--accent);}
   .contact .sep{color:var(--faint);}
-  .contact svg{display:inline-block; flex-shrink:0;}
+  .brand-icon,
+  .contact svg,
+  .entry .source svg{
+    display:inline-block; flex:0 0 auto; width:1em; height:1em;
+    object-fit:contain; vertical-align:-0.12em; margin-right:3px;
+  }
   /* ---- sections: simple vertical flow, each scoped by a horizontal divider ---- */
   section{margin:0; padding:9px 0 10px; border-top:1px solid var(--rule);}
   section:first-of-type{border-top:none;}
@@ -77,7 +82,6 @@
   .entry .when{font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.5pt; color:var(--faint); white-space:nowrap;}
   .entry .source{font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.5pt; color:var(--faint); white-space:nowrap;}
   .entry .source a{color:var(--faint); text-decoration:none; display:inline-flex; align-items:center; gap:2px;}
-  .entry .source svg{display:inline-block; flex-shrink:0;}
   .entry .tech{font-size:9pt; color:var(--accent); font-style:italic; margin:1px 0 2px;}
   .entry .desc{color:var(--muted); margin:1px 0 3px;}
   .impact{color:var(--ink); margin:1px 0 3px;}
